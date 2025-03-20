@@ -56,8 +56,8 @@ class Migration(migrations.Migration):
                 ('logs', models.TextField(blank=True, null=True)),
                 ('created_at', models.DateTimeField(default=django.utils.timezone.now)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('source_db', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='source_migrations', to='api.database')),
-                ('target_db', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='target_migrations', to='api.database')),
+                ('source_db', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='source_migrations', to='app.database')),
+                ('target_db', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='target_migrations', to='app.database')),
             ],
             options={
                 'db_table': 'js_migrate_databases',
@@ -74,8 +74,8 @@ class Migration(migrations.Migration):
                 ('logs', models.TextField(blank=True, null=True)),
                 ('created_at', models.DateTimeField(default=django.utils.timezone.now)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('source_db', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='source_table_jobs', to='api.database')),
-                ('target_db', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='target_table_jobs', to='api.database')),
+                ('source_db', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='source_table_jobs', to='app.database')),
+                ('target_db', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='target_table_jobs', to='app.database')),
             ],
             options={
                 'db_table': 'js_migrate_tables',

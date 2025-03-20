@@ -4,8 +4,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+    path('api/', include('app.urls')),
     # path('admin/', admin.site.urls),
-    path('api/', include('api.urls')),
 ]
 
 # Serve static files during development

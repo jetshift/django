@@ -1,6 +1,6 @@
 [
   {
-    "model": "api.user",
+    "model": "app.user",
     "pk": 1,
     "fields": {
       "name": "John Doe",
@@ -11,7 +11,7 @@
     }
   },
   {
-    "model": "api.user",
+    "model": "app.user",
     "pk": 2,
     "fields": {
       "name": "Jane Smith",
@@ -22,7 +22,7 @@
     }
   },
   {
-    "model": "api.database",
+    "model": "app.database",
     "pk": 1,
     "fields": {
       "title": "SQLite 1",
@@ -35,7 +35,7 @@
     }
   },
   {
-    "model": "api.database",
+    "model": "app.database",
     "pk": 2,
     "fields": {
       "title": "MySQL 1",
@@ -52,7 +52,7 @@
     }
   },
   {
-    "model": "api.database",
+    "model": "app.database",
     "pk": 3,
     "fields": {
       "title": "Postgres 1",
@@ -69,7 +69,7 @@
     }
   },
   {
-    "model": "api.migratedatabase",
+    "model": "app.migratedatabase",
     "pk": 1,
     "fields": {
       "title": "DBM Job 1",
@@ -82,7 +82,7 @@
     }
   },
   {
-    "model": "api.migratetable",
+    "model": "app.migratetable",
     "pk": 1,
     "fields": {
       "title": "TM Job 1",
