@@ -4,6 +4,10 @@ from .serializers import DatabaseSerializer, MigrateDatabaseSerializer, MigrateT
 from .custom_responses import CustomResponseMixin
 from .exceptions import BaseValidationError
 
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework import status
+
 
 class DatabaseViewSet(CustomResponseMixin, viewsets.ModelViewSet):
     queryset = Database.objects.all()
@@ -20,6 +24,22 @@ class DatabaseViewSet(CustomResponseMixin, viewsets.ModelViewSet):
             queryset = queryset.filter(type=db_type)
 
         return queryset
+
+    @action(detail=True, methods=['get'], url_path='check-connection')
+    def check_connection(self, request, pk=None):
+        from core.services.database import check_database_connection
+
+        try:
+            database = self.get_object()
+            success, message = check_database_connection(database)
+
+            if success:
+                return Response({"success": success, "message": message}, status=status.HTTP_200_OK)
+            else:
+                return Response({"success": success, "message": message}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            return Response({"status": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class MigrateDatabaseViewSet(CustomResponseMixin, viewsets.ModelViewSet):
