@@ -69,6 +69,23 @@
     }
   },
   {
+    "model": "app.database",
+    "pk": 4,
+    "fields": {
+      "title": "Clickhouse 1",
+      "dialect": "clickhouse",
+      "type": "target",
+      "host": "localhost",
+      "port": 9000,
+      "username": "default",
+      "password": "123456",
+      "database": "default",
+      "status": true,
+      "created_at": "2024-03-01T12:00:00Z",
+      "updated_at": "2024-03-01T15:30:00Z"
+    }
+  },
+  {
     "model": "app.migratedatabase",
     "pk": 1,
     "fields": {
@@ -86,8 +103,8 @@
     "pk": 1,
     "fields": {
       "title": "TM Job 1",
-      "source_db": 1,
-      "target_db": 2,
+      "source_db": 2,
+      "target_db": 4,
       "data": {
         "source_table": "users",
         "target_table": "users",
