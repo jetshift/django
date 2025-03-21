@@ -1,5 +1,5 @@
 def supported_dialects():
-    return ["sqlite", "mysql", "postgresql"]
+    return ["sqlite", "mysql", "postgresql", "clickhouse"]
 
 
 def get_db_connection_url(database):
@@ -73,19 +73,14 @@ def check_database_connection(database):
     return success, message
 
 
-def fetch_mysql_schema(database, table):
-    from sqlalchemy import create_engine, text
+def create_table(table_name, selected_database, source_database):
+    from app.services.clickhouse_service import create_mysql_to_clickhouse_table
 
-    database_url = get_db_connection_url(database)
-    engine = create_engine(database_url, future=True)
+    source_dialect = source_database.dialect
+    target_dialect = selected_database.dialect  # Target
 
-    query = text("""
-        SELECT COLUMN_NAME, DATA_TYPE, COLUMN_TYPE, CHARACTER_MAXIMUM_LENGTH, IS_NULLABLE, COLUMN_KEY
-        FROM INFORMATION_SCHEMA.COLUMNS
-        WHERE TABLE_SCHEMA = :db AND TABLE_NAME = :table;
-    """)
+    # ClickHouse
+    if source_dialect == 'mysql' and target_dialect == 'clickhouse':
+        return create_mysql_to_clickhouse_table(table_name, selected_database, source_database)
 
-    with engine.connect() as conn:
-        result = conn.execute(query, {'db': database.database, 'table': table})
-        columns = [dict(row._mapping) for row in result]
-    return columns
+    return False, f"Unsupported dialect pairs! Source: {source_dialect} & Target: {target_dialect}"
