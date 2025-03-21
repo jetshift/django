@@ -1,6 +1,7 @@
 from rest_framework import status
 from rest_framework.response import Response
 
+
 class CustomResponseMixin:
     """
     A mixin to provide custom responses for list, retrieve, create, update, and destroy methods.

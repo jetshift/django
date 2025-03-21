@@ -2,8 +2,34 @@ def supported_dialects():
     return ["sqlite", "mysql", "postgresql"]
 
 
-def check_database_connection(database):
+def get_db_connection_url(database):
     import os
+
+    database_url = ''
+    if database.dialect == 'sqlite':
+        path = "instance/" + database.database
+
+        # Check if the file exists
+        if not os.path.isfile(path):
+            raise ValueError(f"Database file does not exist: {database.database}")
+
+        database_url = "sqlite:///" + path
+
+    if database.dialect == 'mysql':
+        database_url = (
+            f"mysql+pymysql://{database.username}:{database.password}@{database.host}:{database.port}/{database.database}"
+            "?connect_timeout=5"
+        )
+
+    if database.dialect == 'postgresql':
+        database_url = (
+            f"postgresql+psycopg://{database.username}:{database.password}@{database.host}:{database.port}/{database.database}"
+            "?connect_timeout=5"
+        )
+    return database_url
+
+
+def check_database_connection(database):
     from sqlalchemy import text, create_engine
     from sqlalchemy.exc import OperationalError
 
@@ -12,28 +38,7 @@ def check_database_connection(database):
         if database.dialect not in supported_dialects():
             raise ValueError(f"Unsupported dialect: {database.dialect}")
 
-        # Create database URL based on dialect
-        if database.dialect == 'sqlite':
-            path = "instance/" + database.database
-
-            # Check if the file exists
-            if not os.path.isfile(path):
-                raise ValueError(f"Database file does not exist: {database.database}")
-
-            database_url = "sqlite:///" + path
-
-        if database.dialect == 'mysql':
-            database_url = (
-                f"mysql+pymysql://{database.username}:{database.password}@{database.host}:{database.port}/{database.database}"
-                "?connect_timeout=10"
-            )
-
-        if database.dialect == 'postgresql':
-            database_url = (
-                f"postgresql+psycopg://{database.username}:{database.password}@{database.host}:{database.port}/{database.database}"
-                "?connect_timeout=10"
-            )
-
+        database_url = get_db_url(database)
         engine = create_engine(database_url, future=True)
         with engine.connect() as connection:
 

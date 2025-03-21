@@ -27,7 +27,7 @@ class DatabaseViewSet(CustomResponseMixin, viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'], url_path='check-connection')
     def check_connection(self, request, pk=None):
-        from core.services.database import check_database_connection
+        from app.services.database import check_database_connection
 
         try:
             database = self.get_object()
@@ -50,3 +50,23 @@ class MigrateDatabaseViewSet(CustomResponseMixin, viewsets.ModelViewSet):
 class MigrateTableViewSet(CustomResponseMixin, viewsets.ModelViewSet):
     queryset = MigrateTable.objects.all()
     serializer_class = MigrateTableSerializer
+
+    @action(detail=True, methods=['get'], url_path='schema')
+    def schema(self, request, pk=None):
+        from app.services.migrate_tables import read_table_schema
+
+        try:
+            # Accessing the query parameter
+            table = request.query_params.get('table')
+            table_type = request.query_params.get('type', 'source')
+
+            migrate_table = self.get_object()
+            success, message, schema = read_table_schema(migrate_table, table_type=table_type, table_name=table)
+
+            if success:
+                return Response({"success": success, "message": message, "schema": schema}, status=status.HTTP_200_OK)
+            else:
+                return Response({"success": success, "message": message}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            return Response({"status": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

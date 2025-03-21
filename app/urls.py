@@ -4,7 +4,7 @@ from .views import DatabaseViewSet, MigrateDatabaseViewSet, MigrateTableViewSet
 
 router = DefaultRouter()
 router.register(r'databases', DatabaseViewSet)
-router.register(r'migrate-databases', MigrateDatabaseViewSet)
-router.register(r'migrate-tables', MigrateTableViewSet)
+router.register(r'migrate/databases', MigrateDatabaseViewSet)
+router.register(r'migrate/tables', MigrateTableViewSet)
 
 urlpatterns = router.urls
