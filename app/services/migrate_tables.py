@@ -1,6 +1,9 @@
+import pandas as pd
 from sqlalchemy import create_engine, MetaData, Table, inspect
 from sqlalchemy.exc import SQLAlchemyError
-from app.services.database import get_db_connection_url, create_table
+
+from app.services.database import get_db_connection_url, create_table, show_table_columns
+from jetshift_core.tasks.mysql_clickhouse_insert import BaseTask
 
 
 def read_table_schema(migrate_table_obj, table_type, table_name):
@@ -63,6 +66,44 @@ def read_table_schema(migrate_table_obj, table_type, table_name):
                 })
 
         return success, message, schema
+
+    except SQLAlchemyError as e:
+        # Handle database or reflection-related errors
+        return False, f"Database error: {str(e)}", []
+
+    except Exception as e:
+        # Handle any other unexpected errors
+        return False, f"Unexpected error: {str(e)}", []
+
+
+class UsersETL(BaseTask):
+    table_name = 'users'
+
+
+def copy_data(migrate_table_obj, table_name):
+    from config.luigi import luigi, local_scheduler
+
+    try:
+        success = True
+        message = "Data copied successfully"
+
+        luigi.build([UsersETL(
+            #
+            migrate_table_id=migrate_table_obj.id,
+            #
+            live_schema=False,
+            primary_id='id',
+            # extract
+            extract_offset=0,
+            extract_limit=10,
+            # extract_chunk_size=20,
+            # load
+            truncate_table=False,
+            load_chunk_size=10,
+            sleep_interval=1
+        )], local_scheduler=local_scheduler)
+
+        return success, message
 
     except SQLAlchemyError as e:
         # Handle database or reflection-related errors

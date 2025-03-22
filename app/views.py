@@ -70,3 +70,22 @@ class MigrateTableViewSet(CustomResponseMixin, viewsets.ModelViewSet):
 
         except Exception as e:
             return Response({"status": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=True, methods=['get'], url_path='migrate')
+    def migrate(self, request, pk=None):
+        from app.services.migrate_tables import copy_data
+
+        try:
+            # Accessing the query parameter
+            table = request.query_params.get('table', 'users')
+
+            migrate_table = self.get_object()
+            success, message = copy_data(migrate_table, table)
+
+            if success:
+                return Response({"success": success, "message": message}, status=status.HTTP_200_OK)
+            else:
+                return Response({"success": success, "message": message}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            return Response({"status": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

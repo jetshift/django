@@ -1,8 +1,8 @@
 import os
 import logging.config
 from pythonjsonlogger import jsonlogger
-import sentry_sdk
-from sentry_sdk.integrations.logging import LoggingIntegration
+# import sentry_sdk
+# from sentry_sdk.integrations.logging import LoggingIntegration
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -11,19 +11,19 @@ log_level = os.environ.get('LOG_LEVEL', 'DEBUG')
 sentry_dsn = os.environ.get('SENTRY_DSN')
 
 # Initialize Sentry SDK with Logging Integration
-sentry_logging = LoggingIntegration(
-    level=logging.INFO,  # Capture info and above as breadcrumbs
-    event_level=logging.ERROR  # Send errors as events
-)
+# sentry_logging = LoggingIntegration(
+#     level=logging.INFO,  # Capture info and above as breadcrumbs
+#     event_level=logging.ERROR  # Send errors as events
+# )
 
-if sentry_dsn:
-    # Initialize Sentry
-    sentry_sdk.init(
-        dsn=sentry_dsn,
-        integrations=[sentry_logging],
-        traces_sample_rate=0.5,
-        profiles_sample_rate=0.5,
-    )
+# if sentry_dsn:
+#     # Initialize Sentry
+#     sentry_sdk.init(
+#         dsn=sentry_dsn,
+#         integrations=[sentry_logging],
+#         traces_sample_rate=0.5,
+#         profiles_sample_rate=0.5,
+#     )
 
 # Step 2: Define your logging configuration
 LOGGING = {
