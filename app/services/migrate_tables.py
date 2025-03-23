@@ -1,9 +1,8 @@
-import pandas as pd
 from sqlalchemy import create_engine, MetaData, Table, inspect
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.services.database import get_db_connection_url, create_table, show_table_columns
-from jetshift_core.tasks.mysql_clickhouse_insert import BaseTask
+from app.services.database import get_db_connection_url, create_table
+from app.services.migrate.common import migrate_supported_pairs
 
 
 def read_table_schema(migrate_table_obj, table_type, table_name):
@@ -76,19 +75,32 @@ def read_table_schema(migrate_table_obj, table_type, table_name):
         return False, f"Unexpected error: {str(e)}", []
 
 
-class UsersETL(BaseTask):
-    table_name = 'users'
-
-
-def copy_data(migrate_table_obj, table_name):
+def migrate_data(migrate_table_obj, table_name):
+    import importlib
     from config.luigi import luigi, local_scheduler
+
+    # Check the migration pair
+    is_supported, supported_message, task_path = migrate_supported_pairs(
+        migrate_table_obj.source_db.dialect,
+        migrate_table_obj.target_db.dialect,
+        check=True
+    )
+
+    if not is_supported:
+        return is_supported, supported_message
+
+    # Dynamically import the task class
+    module_path, class_name = task_path.rsplit('.', 1)
+    task_module = importlib.import_module(module_path)
+    task_class = getattr(task_module, class_name)
 
     try:
         success = True
         message = "Data copied successfully"
 
-        luigi.build([UsersETL(
+        luigi.build([task_class(
             #
+            table_name=table_name,
             migrate_table_id=migrate_table_obj.id,
             #
             live_schema=False,

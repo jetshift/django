@@ -1,4 +1,6 @@
 from rest_framework import viewsets
+from rest_framework.viewsets import ViewSet
+
 from .models import Database, MigrateDatabase, MigrateTable
 from .serializers import DatabaseSerializer, MigrateDatabaseSerializer, MigrateTableSerializer
 from .custom_responses import CustomResponseMixin
@@ -73,14 +75,14 @@ class MigrateTableViewSet(CustomResponseMixin, viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'], url_path='migrate')
     def migrate(self, request, pk=None):
-        from app.services.migrate_tables import copy_data
+        from app.services.migrate_tables import migrate_data
 
         try:
             # Accessing the query parameter
             table = request.query_params.get('table', 'users')
 
             migrate_table = self.get_object()
-            success, message = copy_data(migrate_table, table)
+            success, message = migrate_data(migrate_table, table)
 
             if success:
                 return Response({"success": success, "message": message}, status=status.HTTP_200_OK)
@@ -89,3 +91,11 @@ class MigrateTableViewSet(CustomResponseMixin, viewsets.ModelViewSet):
 
         except Exception as e:
             return Response({"status": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class MigrationViewSet(ViewSet):
+    @action(detail=False, methods=['get'], url_path='supported-pairs')
+    def supported_pairs(self, request):
+        from .services.migrate.common import migrate_supported_pairs
+        pairs = migrate_supported_pairs('', '', check=False)
+        return Response(pairs)
