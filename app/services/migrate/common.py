@@ -3,7 +3,7 @@ def migrate_supported_pairs(source, target, check=False):
         {
             'source': {'title': 'MySQL', 'dialect': 'mysql'},
             'target': {'title': 'ClickHouse', 'dialect': 'clickhouse'},
-            'task_path': 'jetshift_core.tasks.mysql_clickhouse_insert.MysqlToClickhouse'
+            'task_path': 'jetshift_core.tasks.migrate.mysql_clickhouse.mysql_to_clickhouse_flow'
         },
         {
             'source': {'title': 'PostgreSQL', 'dialect': 'postgresql'},
@@ -30,3 +30,17 @@ def migrate_supported_pairs(source, target, check=False):
     success = False
     message = f"Unsupported migration pair: {source} -> {target}"
     return success, message, None
+
+
+class AttrDict(dict):
+    """Dictionary with attribute-style access that returns None for missing keys."""
+
+    def __getattr__(self, item):
+        return self.get(item, None)  # Return None if the key is missing
+
+    def __setattr__(self, key, value):
+        self[key] = value
+
+    def __delattr__(self, item):
+        if item in self:
+            del self[item]

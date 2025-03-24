@@ -61,52 +61,27 @@ def read_table_schema(database, table_name, table_type='source', create=False, s
 
 def migrate_data(migrate_table_obj, task):
     import importlib
-    from config.luigi import luigi, local_scheduler
 
-    # Check the migration pair
+    # Check migration pair support
     is_supported, supported_message, task_path = migrate_supported_pairs(
         migrate_table_obj.source_db.dialect,
         migrate_table_obj.target_db.dialect,
         check=True
     )
-
     if not is_supported:
-        return is_supported, supported_message
-
-    # Dynamically import the task class
-    module_path, class_name = task_path.rsplit('.', 1)
-    task_module = importlib.import_module(module_path)
-    task_class = getattr(task_module, class_name)
+        return False, supported_message
 
     try:
-        success = True
-        message = "Data copied successfully"
+        # Dynamically load and call the correct Prefect flow
+        module_path, flow_name = task_path.rsplit('.', 1)
+        flow_module = importlib.import_module(module_path)
+        flow_func = getattr(flow_module, flow_name)
 
-        luigi.build([task_class(
-            #
-            source_engine=create_database_engine(migrate_table_obj.source_db),
-            target_engine=create_database_engine(migrate_table_obj.target_db),
-            source_table=task.source_table,
-            target_table=task.target_table,
-            #
-            live_schema=False,
-            primary_id='id',
-            # extract
-            extract_offset=0,
-            extract_limit=10,
-            # extract_chunk_size=20,
-            # load
-            truncate_table=False,
-            load_chunk_size=10,
-            sleep_interval=1
-        )], local_scheduler=local_scheduler)
+        # Run the Prefect flow
+        flow_func(migrate_table_obj, task)
 
-        return success, message
-
+        return True, "Data migration completed successfully"
     except SQLAlchemyError as e:
-        # Handle database or reflection-related errors
-        return False, f"Database error: {str(e)}", []
-
+        return False, f"Database error: {str(e)}"
     except Exception as e:
-        # Handle any other unexpected errors
-        return False, f"Unexpected error: {str(e)}", []
+        return False, f"Unexpected error: {str(e)}"
