@@ -97,6 +97,7 @@ def create_table(table_name, selected_database, source_database):
     return False, f"Unsupported dialect pairs! Source: {source_dialect} & Target: {target_dialect}"
 
 
+# Todo:: Temp
 def get_migrate_table_by_id(table_id):
     try:
         migrate_table = MigrateTable.objects.get(id=table_id)

@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine, MetaData, Table, inspect
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.services.database import get_db_connection_url, create_table
+from app.services.database import get_db_connection_url, create_table, create_database_engine
 from app.services.migrate.common import migrate_supported_pairs
 
 
@@ -59,7 +59,7 @@ def read_table_schema(database, table_name, table_type='source', create=False, s
         return False, f"Unexpected error: {str(e)}", []
 
 
-def migrate_data(migrate_table_obj, table_name):
+def migrate_data(migrate_table_obj, task):
     import importlib
     from config.luigi import luigi, local_scheduler
 
@@ -84,8 +84,10 @@ def migrate_data(migrate_table_obj, table_name):
 
         luigi.build([task_class(
             #
-            table_name=table_name,
-            migrate_table_id=migrate_table_obj.id,
+            source_engine=create_database_engine(migrate_table_obj.source_db),
+            target_engine=create_database_engine(migrate_table_obj.target_db),
+            source_table=task.source_table,
+            target_table=task.target_table,
             #
             live_schema=False,
             primary_id='id',

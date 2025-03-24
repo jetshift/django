@@ -64,7 +64,7 @@ class MigrateTableViewSet(CustomResponseMixin, viewsets.ModelViewSet):
             create_table = str(create_table).lower() in ['true', '1', 'yes']
             task_id = request.query_params.get('task_id')
             if not task_id:
-                return False, "Task ID not provided"
+                return Response({"success": False, "message": "Task ID not provided"}, status=status.HTTP_400_BAD_REQUEST)
 
             migrate_table = self.get_object()
             source_database = migrate_table.source_db
@@ -105,13 +105,30 @@ class MigrateTableViewSet(CustomResponseMixin, viewsets.ModelViewSet):
         from app.services.migrate_tables import migrate_data
 
         try:
-            # Accessing the query parameter
-            table = request.query_params.get('table', 'users')
+            # Task fetching logic
+            task_id = request.query_params.get('task_id')
+            if task_id:
+                task = MigrationTask.objects.get(id=task_id)
+            else:
+                task = MigrationTask.objects.filter(status="pending").first()
+
+            if not task:
+                return Response({'success': False, 'message': 'No pending migration task found.'}, status=404)
 
             migrate_table = self.get_object()
-            success, message = migrate_data(migrate_table, table)
+            success, message = migrate_data(migrate_table, task)
 
+            # success = True
+            # message = "Data copied successfully"
             if success:
+                # # Update table status
+                # migrate_table.status = 'migrating'
+                # migrate_table.save()
+                #
+                # # Update task status
+                # task.status = 'migrating'
+                # task.save()
+
                 return Response({"success": success, "message": message}, status=status.HTTP_200_OK)
             else:
                 return Response({"success": success, "message": message}, status=status.HTTP_400_BAD_REQUEST)

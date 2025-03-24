@@ -29,7 +29,7 @@ class MigrationTaskSerializer(serializers.ModelSerializer):
 class MigrateTableSerializer(serializers.ModelSerializer):
     source_database = serializers.SerializerMethodField()
     target_database = serializers.SerializerMethodField()
-    tasks = MigrationTaskSerializer(many=True, read_only=True)  # <-- add this line
+    tasks = MigrationTaskSerializer(many=True, read_only=True)
 
     class Meta:
         model = MigrateTable

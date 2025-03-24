@@ -16,6 +16,14 @@ class User(models.Model):
         return f'User {self.id}'
 
 
+class Status(models.TextChoices):
+    PENDING = 'pending', 'Pending'
+    MIGRATING = 'migrating', 'Migrating'
+    PAUSED = 'paused', 'Paused'
+    COMPLETED = 'completed', 'Completed'
+    FAILED = 'failed', 'Failed'
+
+
 class Database(models.Model):
     DIALECT_CHOICES = [
         ('sqlite', 'SQLite'),
@@ -51,7 +59,7 @@ class MigrateDatabase(models.Model):
     title = models.CharField(max_length=120)
     source_db = models.ForeignKey(Database, on_delete=models.CASCADE, related_name='source_migrations')
     target_db = models.ForeignKey(Database, on_delete=models.CASCADE, related_name='target_migrations')
-    status = models.BooleanField(default=False)
+    status = models.CharField(max_length=50, choices=Status.choices, default=Status.PENDING)
     logs = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(default=now)
     updated_at = models.DateTimeField(auto_now=True)
@@ -67,7 +75,7 @@ class MigrateTable(models.Model):
     title = models.CharField(max_length=120)
     source_db = models.ForeignKey(Database, on_delete=models.CASCADE, related_name='source_table_jobs')
     target_db = models.ForeignKey(Database, on_delete=models.CASCADE, related_name='target_table_jobs')
-    status = models.BooleanField(default=False)
+    status = models.CharField(max_length=50, choices=Status.choices, default=Status.PENDING)
     logs = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(default=now)
     updated_at = models.DateTimeField(auto_now=True)
@@ -83,7 +91,7 @@ class MigrationTask(models.Model):
     migrate_table = models.ForeignKey(MigrateTable, on_delete=models.CASCADE, related_name='tasks')
     source_table = models.CharField(max_length=255)
     target_table = models.CharField(max_length=255)
-    status = models.CharField(max_length=50, default='pending')  # pending, migrating, paused, completed.
+    status = models.CharField(max_length=50, choices=Status.choices, default=Status.PENDING)
     error = models.TextField(blank=True, default='')
 
     class Meta:
