@@ -1,7 +1,7 @@
-from rest_framework import viewsets, serializers
+from rest_framework import viewsets
 from rest_framework.viewsets import ViewSet
 
-from .models import Database, MigrateDatabase, MigrateTable
+from .models import Database, MigrateDatabase, MigrateTable, MigrationTask
 from .serializers import DatabaseSerializer, MigrateDatabaseSerializer, MigrateTableSerializer
 from .custom_responses import CustomResponseMixin
 from .exceptions import BaseValidationError
@@ -57,21 +57,48 @@ class MigrateTableViewSet(CustomResponseMixin, viewsets.ModelViewSet):
     def schema(self, request, pk=None):
         from app.services.migrate_tables import read_table_schema
 
+        source = {}
+        target = {}
         try:
-            # Accessing the query parameter
-            table = request.query_params.get('table')
-            table_type = request.query_params.get('type', 'source')
+            create_table = request.query_params.get('create', 'true')
+            create_table = str(create_table).lower() in ['true', '1', 'yes']
+            task_id = request.query_params.get('task_id')
+            if not task_id:
+                return False, "Task ID not provided"
 
             migrate_table = self.get_object()
-            success, message, schema = read_table_schema(migrate_table, table_type=table_type, table_name=table)
+            source_database = migrate_table.source_db
+            target_database = migrate_table.target_db
+
+            task = MigrationTask.objects.get(id=task_id)
+
+            # Source
+            success, message, schema = read_table_schema(database=source_database, table_name=task.source_table, table_type='source')
+            source = {
+                "success": success,
+                "message": message,
+                "database": migrate_table.source_db.title,
+                "table": task.source_table,
+                "schema": schema,
+            }
+
+            # Target
+            success, message, schema = read_table_schema(database=target_database, table_name=task.target_table, table_type='target', create=create_table, source_db=migrate_table.source_db)
+            target = {
+                "success": success,
+                "message": message,
+                "database": migrate_table.target_db.title,
+                "table": task.target_table,
+                "schema": schema,
+            }
 
             if success:
-                return Response({"success": success, "message": message, "schema": schema}, status=status.HTTP_200_OK)
+                return Response({"success": success, "message": message, "source": source, "target": target}, status=status.HTTP_200_OK)
             else:
-                return Response({"success": success, "message": message}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"success": success, "message": message, "source": source, "target": target}, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
-            return Response({"status": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"status": "error", "message": str(e), "source": source, "target": target}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=True, methods=['get'], url_path='migrate')
     def migrate(self, request, pk=None):

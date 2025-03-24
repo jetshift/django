@@ -67,7 +67,6 @@ class MigrateTable(models.Model):
     title = models.CharField(max_length=120)
     source_db = models.ForeignKey(Database, on_delete=models.CASCADE, related_name='source_table_jobs')
     target_db = models.ForeignKey(Database, on_delete=models.CASCADE, related_name='target_table_jobs')
-    data = models.JSONField(blank=True, null=True)
     status = models.BooleanField(default=False)
     logs = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(default=now)
@@ -78,3 +77,17 @@ class MigrateTable(models.Model):
 
     def __str__(self):
         return f'MigrateTable {self.id}'
+
+
+class MigrationTask(models.Model):
+    migrate_table = models.ForeignKey(MigrateTable, on_delete=models.CASCADE, related_name='tasks')
+    source_table = models.CharField(max_length=255)
+    target_table = models.CharField(max_length=255)
+    status = models.CharField(max_length=50, default='pending')  # pending, migrating, paused, completed.
+    error = models.TextField(blank=True, default='')
+
+    class Meta:
+        db_table = 'js_migrate_table_tasks'
+
+    def __str__(self):
+        return f'MigrationTask {self.id}'

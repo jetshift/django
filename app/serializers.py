@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Database, MigrateDatabase, MigrateTable
+from .models import User, Database, MigrateDatabase, MigrateTable, MigrationTask
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -20,16 +20,23 @@ class MigrateDatabaseSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class MigrationTaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MigrationTask
+        fields = '__all__'
+
+
 class MigrateTableSerializer(serializers.ModelSerializer):
-    source = serializers.SerializerMethodField()
-    target = serializers.SerializerMethodField()
+    source_database = serializers.SerializerMethodField()
+    target_database = serializers.SerializerMethodField()
+    tasks = MigrationTaskSerializer(many=True, read_only=True)  # <-- add this line
 
     class Meta:
         model = MigrateTable
         fields = '__all__'
-        extra_fields = ['source_db_title', 'target_db_title']
+        extra_fields = ['tasks']
 
-    def get_source(self, obj):
+    def get_source_database(self, obj):
         if obj.source_db:
             return {
                 "id": obj.source_db.id,
@@ -37,7 +44,7 @@ class MigrateTableSerializer(serializers.ModelSerializer):
             }
         return None
 
-    def get_target(self, obj):
+    def get_target_database(self, obj):
         if obj.target_db:
             return {
                 "id": obj.target_db.id,
