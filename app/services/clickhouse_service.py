@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine, text
 from app.services.database import get_db_connection_url
-from app.services.mapping import mysql_to_clickhouse
+from jetshift_core.helpers.mysql import map_mysql_to_clickhouse
 from app.services.mysql_service import fetch_mysql_schema
 
 
@@ -12,7 +12,7 @@ def create_mysql_to_clickhouse_table(table_name, selected_database, source_datab
 
         for col in columns:
             # Map MySQL data type to ClickHouse data type
-            ch_type = mysql_to_clickhouse.get(col['DATA_TYPE'], 'String')
+            ch_type = map_mysql_to_clickhouse(col['DATA_TYPE'])
             nullable = 'NULL' if col['IS_NULLABLE'] == 'YES' else ''
             ch_columns.append(f"`{col['COLUMN_NAME']}` {ch_type} {nullable}")
 

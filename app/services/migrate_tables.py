@@ -37,16 +37,16 @@ def read_table_schema(database, table_name, table_type='source', create=False, s
             # Reflect the table schema
             table = Table(table_name, metadata, autoload_with=connection)
 
-            # Collect schema information
-            schema = []
-            for column in table.columns:
-                schema.append({
-                    "name": column.name,
-                    "type": str(column.type),
-                    "nullable": column.nullable,
-                    "primary_key": column.primary_key,
-                    "default": str(column.default) if column.default is not None else None
-                })
+        # Collect schema information
+        schema = []
+        for column in table.columns:
+            schema.append({
+                "name": column.name,
+                "type": str(column.type),
+                "nullable": column.nullable,
+                "primary_key": column.primary_key,
+                "default": str(column.default) if column.default is not None else None
+            })
 
         return success, message, schema
 

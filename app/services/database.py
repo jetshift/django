@@ -1,7 +1,3 @@
-from app.models import MigrateTable
-from django.core.exceptions import ObjectDoesNotExist
-
-
 def supported_dialects():
     return ["sqlite", "mysql", "postgresql", "clickhouse"]
 
@@ -104,42 +100,3 @@ def create_table(table_name, selected_database, source_database):
         return create_mysql_to_clickhouse_table(table_name, selected_database, source_database)
 
     return False, f"Unsupported dialect pairs! Source: {source_dialect} & Target: {target_dialect}"
-
-
-# Todo:: Temp
-def get_migrate_table_by_id(table_id):
-    try:
-        migrate_table = MigrateTable.objects.get(id=table_id)
-        return migrate_table
-    except ObjectDoesNotExist:
-        return None
-
-
-# Todo:: Temp
-def show_table_columns(engine, table_name):
-    from sqlalchemy import MetaData
-
-    metadata = MetaData()
-    metadata.reflect(bind=engine)
-
-    if table_name not in metadata.tables:
-        raise Exception(f"Table '{table_name}' not found.")
-
-    table = metadata.tables[table_name]
-
-    # Extract (column name, python type)
-    fields = []
-    for column in table.columns:
-        try:
-            py_type = column.type.python_type
-        except NotImplementedError:
-            py_type = str(column.type)  # Fallback if python_type is not implemented
-        fields.append((column.name, py_type))
-
-    # Optional: Convert types if you have a conversion function
-    # fields = [(field[0], convert_field_to_python(field[1])) for field in fields]
-
-    # Get only field names
-    table_fields = [field[0] for field in fields]
-
-    return fields, table_fields
