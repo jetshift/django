@@ -1,0 +1,65 @@
+[
+  {
+    "model": "app.migratetable",
+    "pk": 1,
+    "fields": {
+      "title": "TM Job 1",
+      "source_db": 2,
+      "target_db": 4,
+      "status": "pending",
+      "logs": null,
+      "created_at": "2022-09-15T08:00:00Z",
+      "updated_at": "2023-10-01T12:30:00Z"
+    }
+  },
+  {
+    "model": "app.migrationtask",
+    "pk": 1,
+    "fields": {
+      "migrate_table": 1,
+      "source_table": "users",
+      "target_table": "users",
+      "status": "pending",
+      "config": {
+        "live_schema": true,
+        "primary_id": "id",
+        "extract_offset": 0,
+        "extract_limit": 10,
+        "extract_chunk_size": 30,
+        "truncate_table": false,
+        "load_chunk_size": 10,
+        "sleep_interval": 1
+      },
+      "stats": {
+        "total_source_items": 0,
+        "total_target_items": 0
+      },
+      "error": ""
+    }
+  },
+  {
+    "model": "app.migrationtask",
+    "pk": 2,
+    "fields": {
+      "migrate_table": 1,
+      "source_table": "test",
+      "target_table": "test",
+      "status": "pending",
+      "config": {
+        "live_schema": true,
+        "primary_id": "id",
+        "extract_offset": 0,
+        "extract_limit": 10,
+        "extract_chunk_size": 30,
+        "truncate_table": false,
+        "load_chunk_size": 10,
+        "sleep_interval": 1
+      },
+      "stats": {
+        "total_source_items": 0,
+        "total_target_items": 0
+      },
+      "error": ""
+    }
+  }
+]

@@ -87,12 +87,12 @@ def migrate_data(migrate_table_obj, task):
             flow_func(migrate_table_obj, task)
             js_logger.info(f"[{threading.current_thread().name}] Flow completed")
 
-        # Use ThreadPoolExecutor for better thread management
-        with ThreadPoolExecutor(max_workers=2, thread_name_prefix="MigrationThread") as executor:
-            future = executor.submit(flow_worker)
-            future.result()  # Wait for completion and catch exceptions if any
+        # Decoupled execution - Don't block main thread with future.result()
+        executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix="MigrationThread")
+        executor.submit(flow_worker)
 
-        return True, "Data migration completed successfully"
+        # Return immediately after starting the thread
+        return True, "Data migration flow run successfully"
 
     except SQLAlchemyError as e:
         return False, f"Database error: {str(e)}"

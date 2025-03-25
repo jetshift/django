@@ -88,11 +88,33 @@ class MigrateTable(models.Model):
         return f'MigrateTable {self.id}'
 
 
+def default_migration_task_config():
+    return {
+        "live_schema": False,
+        "primary_id": "id",
+        "extract_offset": 0,
+        "extract_limit": 10,
+        "extract_chunk_size": 30,
+        "truncate_table": False,
+        "load_chunk_size": 10,
+        "sleep_interval": 1
+    }
+
+
+def default_migration_task_stats():
+    return {
+        "total_source_items": 0,
+        "total_target_items": 0
+    }
+
+
 class MigrationTask(models.Model):
     migrate_table = models.ForeignKey(MigrateTable, on_delete=models.CASCADE, related_name='tasks')
     source_table = models.CharField(max_length=255)
     target_table = models.CharField(max_length=255)
     status = models.CharField(max_length=50, choices=Status.choices, default=Status.PENDING)
+    config = models.JSONField(default=default_migration_task_config)
+    stats = models.JSONField(default=default_migration_task_stats)
     error = models.TextField(blank=True, default='')
 
     class Meta:
