@@ -1,3 +1,6 @@
+from jetshift_core.helpers.database import check_database_connection
+from jetshift_core.helpers.migrations.common import migrate_supported_pairs
+from jetshift_core.helpers.migrations.tables import read_table_schema, migrate_data
 from rest_framework import viewsets
 from rest_framework.viewsets import ViewSet
 
@@ -29,8 +32,6 @@ class DatabaseViewSet(CustomResponseMixin, viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'], url_path='check-connection')
     def check_connection(self, request, pk=None):
-        from app.services.database import check_database_connection
-
         try:
             database = self.get_object()
             success, message = check_database_connection(database)
@@ -55,8 +56,6 @@ class MigrateTableViewSet(CustomResponseMixin, viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'], url_path='schema')
     def schema(self, request, pk=None):
-        from app.services.migrate_tables import read_table_schema
-
         source = {}
         target = {}
         try:
@@ -102,8 +101,6 @@ class MigrateTableViewSet(CustomResponseMixin, viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'], url_path='migrate')
     def migrate(self, request, pk=None):
-        from app.services.migrate_tables import migrate_data
-
         try:
             # Task fetching logic
             task_id = request.query_params.get('task_id')
@@ -130,6 +127,5 @@ class MigrateTableViewSet(CustomResponseMixin, viewsets.ModelViewSet):
 class MigrationViewSet(ViewSet):
     @action(detail=False, methods=['get'], url_path='supported-pairs')
     def supported_pairs(self, request):
-        from .services.migrate.common import migrate_supported_pairs
         pairs = migrate_supported_pairs('', '', check=False)
         return Response(pairs)
