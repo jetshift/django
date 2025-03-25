@@ -22,17 +22,26 @@ def get_db_connection_url(database):
             "?connect_timeout=5"
         )
 
+        if database.secure:
+            database_url += "&ssl=true"
+
     if database.dialect == 'postgresql':
         database_url = (
             f"postgresql+psycopg://{database.username}:{database.password}@{database.host}:{database.port}/{database.database}"
             "?connect_timeout=5"
         )
 
+        if database.secure:
+            database_url += "&sslmode=require"
+
     if database.dialect == 'clickhouse':
         database_url = (
-            f"clickhouse+native://{database.username}:{database.password}@{database.host}:{database.port}/{database.database}"
+            f"clickhouse+http://{database.username}:{database.password}@{database.host}:{database.port}/{database.database}"
             "?connect_timeout=5&send_receive_timeout=5"
         )
+
+        if database.secure:
+            database_url += "&protocol=https"
 
     return database_url
 

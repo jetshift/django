@@ -44,6 +44,7 @@ class Database(models.Model):
     username = models.CharField(max_length=120, blank=True, null=True)
     password = models.CharField(max_length=191, blank=True, null=True)
     database = models.CharField(max_length=191, blank=True, null=True)
+    secure = models.BooleanField(default=False)
     status = models.BooleanField(default=True)
     created_at = models.DateTimeField(default=now)
     updated_at = models.DateTimeField(auto_now=True)
