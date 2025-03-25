@@ -1,8 +1,14 @@
+import importlib
+import threading
+from concurrent.futures import ThreadPoolExecutor
+from jetshift_core.js_logger import get_logger
 from sqlalchemy import create_engine, MetaData, Table, inspect
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.services.database import get_db_connection_url, create_table, create_database_engine
 from app.services.migrate.common import migrate_supported_pairs
+
+js_logger = get_logger()
 
 
 def read_table_schema(database, table_name, table_type='source', create=False, source_db=None):
@@ -60,8 +66,6 @@ def read_table_schema(database, table_name, table_type='source', create=False, s
 
 
 def migrate_data(migrate_table_obj, task):
-    import importlib
-
     # Check migration pair support
     is_supported, supported_message, task_path = migrate_supported_pairs(
         migrate_table_obj.source_db.dialect,
@@ -77,10 +81,19 @@ def migrate_data(migrate_table_obj, task):
         flow_module = importlib.import_module(module_path)
         flow_func = getattr(flow_module, flow_name)
 
-        # Run the Prefect flow
-        flow_func(migrate_table_obj, task)
+        # Define the worker function that runs the flow
+        def flow_worker():
+            js_logger.info(f"[{threading.current_thread().name}] Flow started")
+            flow_func(migrate_table_obj, task)
+            js_logger.info(f"[{threading.current_thread().name}] Flow completed")
+
+        # Use ThreadPoolExecutor for better thread management
+        with ThreadPoolExecutor(max_workers=2, thread_name_prefix="MigrationThread") as executor:
+            future = executor.submit(flow_worker)
+            future.result()  # Wait for completion and catch exceptions if any
 
         return True, "Data migration completed successfully"
+
     except SQLAlchemyError as e:
         return False, f"Database error: {str(e)}"
     except Exception as e:

@@ -155,7 +155,7 @@ LOGGING = {
             'level': LOG_LEVEL,
             'propagate': True,
         },
-        'jetshift_core': {
+        'jetshift': {
             'handlers': ['file'],
             'level': LOG_LEVEL,
             'propagate': True,
