@@ -1,0 +1,18 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: jetshift:dev
+    container_name: jetshift
+    ports:
+      - "8080:8080"
+      - "4200:4200"
+    volumes:
+      - .:/app:delegated
+    networks:
+      - default
+
+networks:
+  default:
+    driver: bridge

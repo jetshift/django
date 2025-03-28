@@ -1,0 +1,15 @@
+{
+  "name": "jetshift-dev",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "image": "jetshift:dev"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance"
+      ]
+    }
+  }
+}

@@ -115,6 +115,8 @@ class MigrateTableViewSet(CustomResponseMixin, viewsets.ModelViewSet):
             migrate_table = self.get_object()
             success, message = migrate_data(migrate_table, task)
 
+            # success, message = True, 'Testing'
+
             if success:
                 return Response({"success": success, "message": message}, status=status.HTTP_200_OK)
             else:

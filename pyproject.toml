@@ -17,13 +17,23 @@ dependencies = [
     "djangorestframework==3.15.2",
     "django-cors-headers==4.6.0",
     "psycopg2==2.9.10",
-    "jetshift-core==1.0.0a32",
-    "clickhouse-sqlalchemy==0.3.2"
+    "clickhouse-sqlalchemy==0.3.2",
+    #    "jetshift-core==1.0.0a32",
+    # jetshift-core (previously used via PyPI)
+    "prefect==3.2.14",
+    "pymysql==1.1.1",
+    "clickhouse-driver==0.2.9",
+    "requests==2.32.3",
+    "pandas==2.2.2",
+    "sqlalchemy==2.0.39",
+    "faker==27.4.0",
+    "click==8.1.7",
+    "pyyaml==6.0.2"
 ]
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["jetshift_core*"]
+include = ["jetshift_core*", "app*", "jetshift*"]
 exclude = ["tests*"]
 
 [project.scripts]
