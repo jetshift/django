@@ -13,6 +13,22 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
 
+from rest_framework.decorators import api_view
+
+
+@api_view(['GET'])
+def test_view(request):
+
+    # Send WebSocket notification
+    from app.utils.notify import trigger_websocket_notification
+    trigger_websocket_notification({
+        "task_id": 1,
+        "total_source_items": 1,
+        "total_target_items": 1
+    })
+
+    return Response({'message': 'Test route is working!'})
+
 
 class DatabaseViewSet(CustomResponseMixin, viewsets.ModelViewSet):
     queryset = Database.objects.all()

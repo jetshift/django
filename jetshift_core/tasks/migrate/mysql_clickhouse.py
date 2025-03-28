@@ -211,6 +211,8 @@ def mysql_to_clickhouse_flow(migrate_table_id, task_id):
     total_migrated_items = total_target_items + total_loaded_items
     js_logger.info(f"Total migrated items: {total_migrated_items}")
 
+    task_status = 'migrating'
+
     # Update task
     if total_source_items == total_migrated_items:
 
@@ -219,15 +221,21 @@ def mysql_to_clickhouse_flow(migrate_table_id, task_id):
             asyncio.run(pause_prefect_deployment(deployment_id))
 
         task.status = 'completed'
+        task_status = 'completed'
 
     task.stats['total_source_items'] = total_source_items
     task.stats['total_target_items'] = total_migrated_items
     task.save()
 
     # Send WebSocket notification
-    from app.utils.notify import trigger_websocket_notification
-    trigger_websocket_notification({
-        "task_id": task.id,
-        "total_source_items": total_source_items,
-        "total_target_items": total_migrated_items
-    })
+    try:
+        from app.utils.notify import trigger_websocket_notification
+        trigger_websocket_notification({
+            "migrate_table_id": migrate_table_obj.id,
+            "task_id": task.id,
+            "status": task_status,
+            "total_source_items": total_source_items,
+            "total_target_items": total_migrated_items
+        })
+    except Exception as e:
+        js_logger.error(f"WebSocket notification failed: {e}")
