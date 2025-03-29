@@ -115,6 +115,7 @@ class MigrationTask(models.Model):
     status = models.CharField(max_length=50, choices=Status.choices, default=Status.PENDING)
     config = models.JSONField(default=default_migration_task_config)
     stats = models.JSONField(default=default_migration_task_stats)
+    deployment_id = models.CharField(max_length=255)
     error = models.TextField(blank=True, default='')
 
     class Meta:
