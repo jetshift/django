@@ -16,7 +16,7 @@ class JetSshitWebSocketConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         data = json.loads(text_data)
         await self.send(json.dumps({
-            "message": f"Message received: {data.get('message', '')}"
+            "message": f"{data.get('message', '')}"
         }))
 
     async def websocket_message(self, event):
