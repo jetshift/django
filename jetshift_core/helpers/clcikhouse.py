@@ -23,6 +23,31 @@ def get_clickhouse_to_pandas_type(ch_type):
     return ch_to_pd_type.get(ch_type, 'string')  # default to 'string' if unknown
 
 
+def prepare_params(migrate_table_obj, migration_task, source_engine, target_engine):
+    from jetshift_core.helpers.migrations.common import AttrDict
+
+    params = AttrDict(dict(
+        source_db=migrate_table_obj.source_db,
+        target_db=migrate_table_obj.target_db,
+        source_engine=source_engine,
+        target_engine=target_engine,
+        source_table=migration_task.source_table,
+        target_table=migration_task.target_table,
+        # Get config
+        live_schema=bool(migration_task.config.get('live_schema', False)),
+        primary_id=migration_task.config.get('primary_id', None),
+        extract_offset=int(migration_task.config.get('extract_offset', 0)),
+        extract_limit=int(migration_task.config.get('extract_limit', 10)),
+        extract_chunk_size=int(migration_task.config.get('extract_chunk_size', 50)),
+        truncate_table=bool(migration_task.config.get('truncate_table', False)),
+        load_chunk_size=int(migration_task.config.get('load_chunk_size', 10)),
+        sleep_interval=int(migration_task.config.get('sleep_interval', 1)),
+    ))
+    params.output_path = f"data/{params.source_table}.csv"
+
+    return params
+
+
 def get_clickhouse_credentials():
     from config.database import clickhouse
     credentials = clickhouse()

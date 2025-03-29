@@ -2,8 +2,6 @@ import importlib
 import threading
 from concurrent.futures import ThreadPoolExecutor
 
-import random
-
 from jetshift_core.js_logger import get_logger
 from sqlalchemy import create_engine, MetaData, Table, inspect
 from sqlalchemy.exc import SQLAlchemyError
@@ -68,7 +66,7 @@ def read_table_schema(database, table_name, table_type='source', create=False, s
         return False, f"Unexpected error: {str(e)}", []
 
 
-def migrate_data(migrate_table_obj, task):
+def migrate_data(migrate_table_obj, migration_task):
     # Check migration pair support
     is_supported, supported_message, task_path = migrate_supported_pairs(
         migrate_table_obj.source_db.dialect,
@@ -85,7 +83,7 @@ def migrate_data(migrate_table_obj, task):
         flow_func = getattr(flow_module, flow_name)
 
         # Run without threading
-        flow_func(migrate_table_obj, task)
+        flow_func(migrate_table_obj, migration_task)
 
         # Define the worker function that runs the flow
         # def flow_worker():

@@ -3,8 +3,7 @@ def migrate_supported_pairs(source, target, check=False):
         {
             'source': {'title': 'MySQL', 'dialect': 'mysql'},
             'target': {'title': 'ClickHouse', 'dialect': 'clickhouse'},
-            # 'task_path': 'jetshift_core.tasks.migrate.mysql_clickhouse.mysql_to_clickhouse_flow'
-            'task_path': 'jetshift_core.tasks.migrate.mysql_clickhouse.mysql_to_clickhouse_flow_deploy'
+            'task_path': 'jetshift_core.tasks.mysql_clickhouse.mysql_to_clickhouse_flow_deploy'
         },
         {
             'source': {'title': 'PostgreSQL', 'dialect': 'postgresql'},

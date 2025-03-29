@@ -18,7 +18,7 @@ class User(models.Model):
 
 class Status(models.TextChoices):
     PENDING = 'pending', 'Pending'
-    MIGRATING = 'migrating', 'Migrating'
+    MIGRATING = 'syncing', 'Syncing'
     PAUSED = 'paused', 'Paused'
     COMPLETED = 'completed', 'Completed'
     FAILED = 'failed', 'Failed'

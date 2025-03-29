@@ -18,7 +18,6 @@ from rest_framework.decorators import api_view
 
 @api_view(['GET'])
 def test_view(request):
-
     # Send WebSocket notification
     from app.utils.notify import trigger_websocket_notification
     trigger_websocket_notification({
@@ -128,15 +127,15 @@ class MigrateTableViewSet(CustomResponseMixin, viewsets.ModelViewSet):
             # Task fetching logic
             task_id = request.query_params.get('task_id')
             if task_id:
-                task = MigrationTask.objects.get(id=task_id)
+                migration_task = MigrationTask.objects.get(id=task_id)
             else:
-                task = MigrationTask.objects.filter(status="migrating").first() or MigrationTask.objects.filter(status="pending").first()
+                migration_task = MigrationTask.objects.filter(status="migrating").first() or MigrationTask.objects.filter(status="pending").first()
 
-            if not task:
+            if not migration_task:
                 return Response({'success': False, 'message': 'No pending migration task found.'}, status=404)
 
             migrate_table = self.get_object()
-            success, message = migrate_data(migrate_table, task)
+            success, message = migrate_data(migrate_table, migration_task)
 
             # success, message = True, 'Testing'
 
