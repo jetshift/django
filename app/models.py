@@ -17,11 +17,11 @@ class User(models.Model):
 
 
 class Status(models.TextChoices):
-    PENDING = 'pending', 'Pending'
+    IDLE = 'idle', 'Idle'
     MIGRATING = 'syncing', 'Syncing'
     PAUSED = 'paused', 'Paused'
-    COMPLETED = 'completed', 'Completed'
     FAILED = 'failed', 'Failed'
+    COMPLETED = 'completed', 'Completed'
 
 
 class Database(models.Model):
@@ -60,7 +60,7 @@ class MigrateDatabase(models.Model):
     title = models.CharField(max_length=120)
     source_db = models.ForeignKey(Database, on_delete=models.CASCADE, related_name='source_migrations')
     target_db = models.ForeignKey(Database, on_delete=models.CASCADE, related_name='target_migrations')
-    status = models.CharField(max_length=50, choices=Status.choices, default=Status.PENDING)
+    status = models.CharField(max_length=50, choices=Status.choices, default=Status.IDLE)
     logs = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(default=now)
     updated_at = models.DateTimeField(auto_now=True)
@@ -82,7 +82,7 @@ class MigrateTable(models.Model):
     title = models.CharField(max_length=120)
     source_db = models.ForeignKey(Database, on_delete=models.CASCADE, related_name='source_table_jobs')
     target_db = models.ForeignKey(Database, on_delete=models.CASCADE, related_name='target_table_jobs')
-    status = models.CharField(max_length=50, choices=Status.choices, default=Status.PENDING)
+    status = models.CharField(max_length=50, choices=Status.choices, default=Status.IDLE)
     logs = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(default=now)
     updated_at = models.DateTimeField(auto_now=True)
@@ -118,7 +118,7 @@ class MigrationTask(models.Model):
     migrate_table = models.ForeignKey(MigrateTable, on_delete=models.CASCADE, related_name='tasks')
     source_table = models.CharField(max_length=255)
     target_table = models.CharField(max_length=255)
-    status = models.CharField(max_length=50, choices=Status.choices, default=Status.PENDING)
+    status = models.CharField(max_length=50, choices=Status.choices, default=Status.IDLE)
     config = models.JSONField(default=default_migration_task_config)
     stats = models.JSONField(default=default_migration_task_stats)
     deployment_id = models.CharField(max_length=255)

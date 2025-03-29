@@ -7,7 +7,7 @@
       "title": "Migration Demo",
       "source_db": 2,
       "target_db": 4,
-      "status": "pending",
+      "status": "idle",
       "logs": null,
       "created_at": "2022-09-15T08:00:00Z",
       "updated_at": "2023-10-01T12:30:00Z"
@@ -20,7 +20,7 @@
       "migrate_table": 1,
       "source_table": "users",
       "target_table": "users",
-      "status": "pending",
+      "status": "idle",
       "config": {
         "live_schema": true,
         "primary_id": "id",
@@ -45,7 +45,7 @@
       "migrate_table": 1,
       "source_table": "test",
       "target_table": "test",
-      "status": "pending",
+      "status": "idle",
       "config": {
         "live_schema": true,
         "primary_id": "id",
@@ -71,7 +71,7 @@
       "title": "ETL Demo",
       "source_db": 2,
       "target_db": 4,
-      "status": "pending",
+      "status": "idle",
       "logs": null,
       "created_at": "2022-09-15T08:00:00Z",
       "updated_at": "2023-10-01T12:30:00Z"
@@ -84,7 +84,7 @@
       "migrate_table": 2,
       "source_table": "users",
       "target_table": "users",
-      "status": "pending",
+      "status": "idle",
       "config": {
         "live_schema": true,
         "primary_id": "id",

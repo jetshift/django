@@ -5,7 +5,7 @@ from rest_framework import viewsets
 from rest_framework.viewsets import ViewSet
 
 from .models import Database, MigrateDatabase, MigrateTable, MigrationTask
-from .serializers import DatabaseSerializer, MigrateDatabaseSerializer, MigrateTableSerializer
+from .serializers import DatabaseSerializer, MigrateDatabaseSerializer, MigrateTableSerializer, MigrationTaskSerializer
 from .custom_responses import CustomResponseMixin
 from .exceptions import BaseValidationError
 
@@ -121,7 +121,7 @@ class MigrateTableViewSet(CustomResponseMixin, viewsets.ModelViewSet):
         except Exception as e:
             return Response({"status": "error", "message": str(e), "source": source, "target": target}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    @action(detail=True, methods=['get'], url_path='migrate')
+    @action(detail=True, methods=['get'], url_path='sync')
     def migrate(self, request, pk=None):
         try:
             # Task fetching logic
@@ -129,10 +129,10 @@ class MigrateTableViewSet(CustomResponseMixin, viewsets.ModelViewSet):
             if task_id:
                 migration_task = MigrationTask.objects.get(id=task_id)
             else:
-                migration_task = MigrationTask.objects.filter(status="migrating").first() or MigrationTask.objects.filter(status="pending").first()
+                migration_task = MigrationTask.objects.filter(status="syncing").first() or MigrationTask.objects.filter(status="idle").first()
 
             if not migration_task:
-                return Response({'success': False, 'message': 'No pending migration task found.'}, status=404)
+                return Response({'success': False, 'message': 'No idle task found.'}, status=404)
 
             migrate_table = self.get_object()
             success, message = migrate_data(migrate_table, migration_task)
@@ -148,7 +148,45 @@ class MigrateTableViewSet(CustomResponseMixin, viewsets.ModelViewSet):
             return Response({"status": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+class MigrationTaskSet(viewsets.ModelViewSet):
+    queryset = MigrationTask.objects.all()
+    serializer_class = MigrationTaskSerializer
+
+    @action(detail=True, methods=['get'], url_path='change-task-status')
+    def migrate(self, request, pk=None):
+        import asyncio
+        from jetshift_core.utils.prefect_api import pause_prefect_deployment
+
+        try:
+            # Task fetching logic
+            task_status = request.query_params.get('status')
+            if not task_status:
+                return Response({'success': False, 'message': 'The status param is required'}, status=404)
+
+            migration_task = self.get_object()
+
+            # Update deployment status
+            deployment_pause = False if task_status == "syncing" else True
+            asyncio.run(pause_prefect_deployment(migration_task.deployment_id, deployment_pause))
+
+            # Update task status
+            migration_task.status = task_status
+            migration_task.save()
+
+            success, message = True, f"Successfully updated task #{migration_task.id} status to {task_status}"
+            if success:
+                return Response({"success": success, "message": message}, status=status.HTTP_200_OK)
+            else:
+                return Response({"success": success, "message": message}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            return Response({"status": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class MigrationViewSet(ViewSet):
+    serializer_class = MigrateTableSerializer
+    queryset = MigrateTable.objects.all()
+
     @action(detail=False, methods=['get'], url_path='supported-pairs')
     def supported_pairs(self, request):
         pairs = migrate_supported_pairs('', '', check=False)
