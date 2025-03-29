@@ -5,7 +5,7 @@ from django.urls import path
 router = DefaultRouter()
 router.register(r'databases', DatabaseViewSet)
 router.register(r'migrate/databases', MigrateDatabaseViewSet)
-router.register(r'migrate/tables', MigrateTableViewSet)
+router.register(r'migrate/tables', MigrateTableViewSet, basename='migratetable')
 router.register(r'migrate', MigrationViewSet, basename='migration')
 
 urlpatterns = [

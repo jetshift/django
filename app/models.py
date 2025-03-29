@@ -36,8 +36,8 @@ class Database(models.Model):
         ('target', 'Target'),
     ]
 
-    dialect = models.CharField(max_length=50, choices=DIALECT_CHOICES)
-    type = models.CharField(max_length=50, choices=TYPE_CHOICES)
+    dialect = models.CharField(max_length=50, choices=DIALECT_CHOICES, default="mysql")
+    type = models.CharField(max_length=50, choices=TYPE_CHOICES, default='source')
     title = models.CharField(max_length=120)
     host = models.CharField(max_length=191, blank=True, null=True)
     port = models.IntegerField(blank=True, null=True)
@@ -73,6 +73,12 @@ class MigrateDatabase(models.Model):
 
 
 class MigrateTable(models.Model):
+    TYPE_CHOICES = [
+        ('migration', 'Migration'),
+        ('etl', 'ETL'),
+    ]
+
+    type = models.CharField(max_length=50, choices=TYPE_CHOICES, default='migration')
     title = models.CharField(max_length=120)
     source_db = models.ForeignKey(Database, on_delete=models.CASCADE, related_name='source_table_jobs')
     target_db = models.ForeignKey(Database, on_delete=models.CASCADE, related_name='target_table_jobs')

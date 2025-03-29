@@ -67,8 +67,15 @@ class MigrateDatabaseViewSet(CustomResponseMixin, viewsets.ModelViewSet):
 
 
 class MigrateTableViewSet(CustomResponseMixin, viewsets.ModelViewSet):
-    queryset = MigrateTable.objects.all()
     serializer_class = MigrateTableSerializer
+    queryset = MigrateTable.objects.all()
+
+    def get_queryset(self):
+        queryset = MigrateTable.objects.all()
+        type_param = self.request.query_params.get('type')
+        if type_param:
+            queryset = queryset.filter(type=type_param)
+        return queryset
 
     @action(detail=True, methods=['get'], url_path='schema')
     def schema(self, request, pk=None):
