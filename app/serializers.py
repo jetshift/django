@@ -1,6 +1,21 @@
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
 from .models import Database, MigrateDatabase, MigrateTable, MigrationTask
 from django.contrib.auth import authenticate
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        # Add custom claims
+        token['username'] = user.username
+        token['email'] = user.email
+        token['name'] = user.get_full_name()
+
+        return token
 
 
 class LoginSerializer(serializers.Serializer):
