@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -22,7 +23,6 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -175,4 +175,22 @@ CHANNEL_LAYERS = {
             "hosts": [(REDIS_HOST, REDIS_PORT)],
         },
     },
+}
+
+# REST
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ),
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),  # 30 mins access token
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),  # 7 days refresh token
+    'ROTATE_REFRESH_TOKENS': False,  # Optional: issue new refresh token on refresh
+    'BLACKLIST_AFTER_ROTATION': True,  # Useful if using token blacklisting
 }

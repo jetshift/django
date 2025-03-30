@@ -1,11 +1,17 @@
 from rest_framework import serializers
-from .models import User, Database, MigrateDatabase, MigrateTable, MigrationTask
+from .models import Database, MigrateDatabase, MigrateTable, MigrationTask
+from django.contrib.auth import authenticate
 
 
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = '__all__'  # Include all fields or specify: ['id', 'name', 'username', 'email']
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        user = authenticate(**data)
+        if user and user.is_active:
+            return user
+        raise serializers.ValidationError("Invalid credentials")
 
 
 class DatabaseSerializer(serializers.ModelSerializer):

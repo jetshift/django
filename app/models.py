@@ -1,19 +1,6 @@
 from django.db import models
 from django.utils.timezone import now
-
-
-class User(models.Model):
-    name = models.CharField(max_length=120)
-    username = models.CharField(max_length=80, unique=True)
-    email = models.EmailField(unique=True)
-    created_at = models.DateTimeField(default=now)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        db_table = 'js_users'
-
-    def __str__(self):
-        return f'User {self.id}'
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 
 
 class Status(models.TextChoices):

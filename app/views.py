@@ -1,3 +1,7 @@
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
+
 from jetshift_core.helpers.database import check_database_connection
 from jetshift_core.helpers.migrations.common import migrate_supported_pairs
 from jetshift_core.helpers.migrations.tables import read_table_schema, migrate_data
@@ -5,7 +9,7 @@ from rest_framework import viewsets
 from rest_framework.viewsets import ViewSet
 
 from .models import Database, MigrateDatabase, MigrateTable, MigrationTask
-from .serializers import DatabaseSerializer, MigrateDatabaseSerializer, MigrateTableSerializer, MigrationTaskSerializer
+from .serializers import DatabaseSerializer, MigrateDatabaseSerializer, MigrateTableSerializer, MigrationTaskSerializer, LoginSerializer
 from .custom_responses import CustomResponseMixin
 from .exceptions import BaseValidationError
 
@@ -27,6 +31,26 @@ def test_view(request):
     })
 
     return Response({'message': 'Test route is working!'})
+
+
+class LoginView(APIView):
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.validated_data
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            })
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ProtectedView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response({"message": f"Hello {request.user.username}!"})
 
 
 class DatabaseViewSet(CustomResponseMixin, viewsets.ModelViewSet):
