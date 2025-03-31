@@ -15,7 +15,7 @@ class Database(models.Model):
     DIALECT_CHOICES = [
         ('sqlite', 'SQLite'),
         ('mysql', 'MySQL'),
-        ('postgres', 'PostgreSQL'),
+        ('postgresql', 'PostgreSQL'),
     ]
 
     TYPE_CHOICES = [
