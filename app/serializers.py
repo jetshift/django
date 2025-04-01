@@ -1,32 +1,50 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from app.models import Database, MigrateDatabase, MigrateTable, MigrationTask
+from django.contrib.auth import authenticate, get_user_model
+from django.utils.translation import gettext_lazy as _
 
-from .models import Database, MigrateDatabase, MigrateTable, MigrationTask
-from django.contrib.auth import authenticate
+User = get_user_model()
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        username_or_email = attrs.get("username")
+        password = attrs.get("password")
+
+        user = authenticate(request=self.context.get('request'), username=username_or_email, password=password)
+
+        if user is None:
+            try:
+                user_obj = User.objects.get(email__iexact=username_or_email)
+                user = authenticate(request=self.context.get('request'), username=user_obj.username, password=password)
+            except User.DoesNotExist:
+                raise serializers.ValidationError(_("No user found with this email"))
+
+        if user is None:
+            raise serializers.ValidationError(_("Incorrect credentials"))
+
+        if not user.is_active:
+            raise serializers.ValidationError(_("User account is disabled"))
+
+        self.user = user
+
+        # ✅ Use get_token to include custom claims
+        refresh = self.get_token(user)
+
+        return {
+            "access": str(refresh.access_token),
+            "refresh": str(refresh),
+        }
+
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-
-        # Add custom claims
-        token['username'] = user.username
-        token['email'] = user.email
-        token['name'] = user.get_full_name()
+        token["username"] = user.username
+        token["email"] = user.email
+        token["name"] = user.get_full_name()
 
         return token
-
-
-class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField()
-    password = serializers.CharField(write_only=True)
-
-    def validate(self, data):
-        user = authenticate(**data)
-        if user and user.is_active:
-            return user
-        raise serializers.ValidationError("Invalid credentials")
 
 
 class DatabaseSerializer(serializers.ModelSerializer):

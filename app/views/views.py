@@ -1,23 +1,19 @@
+from django.contrib.auth.models import User
+from rest_framework import status
+from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.views import APIView
-from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.response import Response
+from rest_framework.viewsets import ViewSet
 
+from app.custom_responses import CustomResponseMixin
+from app.exceptions import BaseValidationError
+from app.models import Database, MigrateDatabase, MigrateTable, MigrationTask
+from app.serializers import DatabaseSerializer, MigrateDatabaseSerializer, MigrateTableSerializer, MigrationTaskSerializer
 from jetshift_core.helpers.database import check_database_connection
 from jetshift_core.helpers.migrations.common import migrate_supported_pairs
 from jetshift_core.helpers.migrations.tables import read_table_schema, migrate_data
-from rest_framework import viewsets
-from rest_framework.viewsets import ViewSet
-
-from app.models import Database, MigrateDatabase, MigrateTable, MigrationTask
-from app.serializers import DatabaseSerializer, MigrateDatabaseSerializer, MigrateTableSerializer, MigrationTaskSerializer, LoginSerializer, CustomTokenObtainPairSerializer
-from app.custom_responses import CustomResponseMixin
-from app.exceptions import BaseValidationError
-
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework import status
-
-from rest_framework.decorators import api_view
 
 
 @api_view(['GET'])
@@ -31,17 +27,6 @@ def test_view(request):
     })
 
     return Response({'message': 'Test route is working!'})
-
-
-class CustomTokenObtainPairView(TokenObtainPairView):
-    serializer_class = CustomTokenObtainPairSerializer
-
-
-class ProtectedView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        return Response({"message": f"Hello {request.user.first_name}!"})
 
 
 class DatabaseViewSet(CustomResponseMixin, viewsets.ModelViewSet):
