@@ -1,8 +1,10 @@
+from django.urls import path
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
 
-from .views import DatabaseViewSet, MigrateDatabaseViewSet, MigrateTableViewSet, MigrationTaskSet, MigrationViewSet, test_view, ProtectedView, CustomTokenObtainPairView
-from django.urls import path
+from app.views.views import DatabaseViewSet, MigrateDatabaseViewSet, MigrateTableViewSet, MigrationTaskSet, MigrationViewSet, test_view, ProtectedView, CustomTokenObtainPairView
+
+from app.views.chart_views import ChartsETLTasksView, ChartsDatabasesView
 
 router = DefaultRouter()
 router.register(r'databases', DatabaseViewSet)
@@ -16,7 +18,11 @@ urlpatterns = [
     path('login/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('protected/', ProtectedView.as_view(), name='protected'),
+]
 
+urlpatterns += [
+    path('charts/etl-tasks/', ChartsETLTasksView.as_view(), name='charts_etl_tasks'),
+    path('charts/databases/', ChartsDatabasesView.as_view(), name='charts_databases'),
 ]
 
 urlpatterns += router.urls

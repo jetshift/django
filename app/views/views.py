@@ -1,6 +1,5 @@
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
-from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from jetshift_core.helpers.database import check_database_connection
@@ -9,10 +8,10 @@ from jetshift_core.helpers.migrations.tables import read_table_schema, migrate_d
 from rest_framework import viewsets
 from rest_framework.viewsets import ViewSet
 
-from .models import Database, MigrateDatabase, MigrateTable, MigrationTask
-from .serializers import DatabaseSerializer, MigrateDatabaseSerializer, MigrateTableSerializer, MigrationTaskSerializer, LoginSerializer, CustomTokenObtainPairSerializer
-from .custom_responses import CustomResponseMixin
-from .exceptions import BaseValidationError
+from app.models import Database, MigrateDatabase, MigrateTable, MigrationTask
+from app.serializers import DatabaseSerializer, MigrateDatabaseSerializer, MigrateTableSerializer, MigrationTaskSerializer, LoginSerializer, CustomTokenObtainPairSerializer
+from app.custom_responses import CustomResponseMixin
+from app.exceptions import BaseValidationError
 
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -42,11 +41,11 @@ class ProtectedView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        print(request.user)
         return Response({"message": f"Hello {request.user.first_name}!"})
 
 
 class DatabaseViewSet(CustomResponseMixin, viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
     queryset = Database.objects.all()
     serializer_class = DatabaseSerializer
 
@@ -83,6 +82,7 @@ class MigrateDatabaseViewSet(CustomResponseMixin, viewsets.ModelViewSet):
 
 
 class MigrateTableViewSet(CustomResponseMixin, viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
     serializer_class = MigrateTableSerializer
     queryset = MigrateTable.objects.all()
 

@@ -180,7 +180,11 @@ CHANNEL_LAYERS = {
 # REST
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'app.authentication.CookieJWTAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
@@ -194,3 +198,9 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': False,  # Optional: issue new refresh token on refresh
     'BLACKLIST_AFTER_ROTATION': True,  # Useful if using token blacklisting
 }
+
+CORS_ALLOW_CREDENTIALS = True
+
+# Allow JWT Auth to work with cookies
+CSRF_COOKIE_SECURE = True  # only if you're also using CSRF tokens (for security with cookies)
+SESSION_COOKIE_SAMESITE = "Lax"  # or "Strict" depending on your flow
