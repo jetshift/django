@@ -38,15 +38,15 @@ class ChartsETLTasksView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        from app.models import JSTaskDetail
+        from app.models import JSSubTask
         from django.db.models import Count
 
         try:
             type_param = self.request.query_params.get('type')
 
             raw_counts = (
-                JSTaskDetail.objects
-                .filter(task__type=type_param) if type_param else JSTaskDetail.objects
+                JSSubTask.objects
+                .filter(task__type=type_param) if type_param else JSSubTask.objects
             ).values('status').annotate(count=Count('status')).order_by('-count')
 
             # Capitalize the first letter of each status

@@ -14,7 +14,7 @@
     }
   },
   {
-    "model": "app.jstaskdetail",
+    "model": "app.jssubtask",
     "pk": 1,
     "fields": {
       "task_id": 1,
@@ -39,7 +39,7 @@
     }
   },
   {
-    "model": "app.jstaskdetail",
+    "model": "app.jssubtask",
     "pk": 2,
     "fields": {
       "task_id": 1,
@@ -78,7 +78,7 @@
     }
   },
   {
-    "model": "app.jstaskdetail",
+    "model": "app.jssubtask",
     "pk": 3,
     "fields": {
       "task_id": 2,

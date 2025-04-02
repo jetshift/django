@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from app.views.auth_views import CustomTokenObtainPairView, ProtectedView
-from app.views.task_views import TaskViewSet, MigrationTaskSet
+from app.views.task_views import TaskViewSet, SubTaskViewSet
 from app.views.views import DatabaseViewSet, MigrateDatabaseViewSet, MigrationViewSet, test_view
 from app.views.chart_views import ChartsETLTasksView, ChartsDatabasesView
 
@@ -11,7 +11,7 @@ router = DefaultRouter()
 router.register(r'databases', DatabaseViewSet)
 router.register(r'migrate/databases', MigrateDatabaseViewSet)
 router.register(r'tasks', TaskViewSet, basename='tasks')
-router.register(r'task-details', MigrationTaskSet, basename='taskdetail')
+router.register(r'subtasks', SubTaskViewSet, basename='subtasks')
 router.register(r'migrate', MigrationViewSet, basename='migration')
 
 urlpatterns = [

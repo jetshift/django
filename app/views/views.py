@@ -8,7 +8,7 @@ from rest_framework.viewsets import ViewSet
 from app.custom_responses import CustomResponseMixin
 from app.exceptions import BaseValidationError
 from app.models import JSDatabase, JSMigrateDatabase, JSTask
-from app.serializers import DatabaseSerializer, MigrateDatabaseSerializer, MigrateTableSerializer
+from app.serializers import DatabaseSerializer, JSMigrateDatabaseSerializer, JSTaskSerializer
 from jetshift_core.helpers.database import check_database_connection
 from jetshift_core.helpers.migrations.common import migrate_supported_pairs
 
@@ -60,11 +60,11 @@ class DatabaseViewSet(CustomResponseMixin, viewsets.ModelViewSet):
 
 class MigrateDatabaseViewSet(CustomResponseMixin, viewsets.ModelViewSet):
     queryset = JSMigrateDatabase.objects.all()
-    serializer_class = MigrateDatabaseSerializer
+    serializer_class = JSMigrateDatabaseSerializer
 
 
 class MigrationViewSet(ViewSet):
-    serializer_class = MigrateTableSerializer
+    serializer_class = JSTaskSerializer
     queryset = JSTask.objects.all()
 
     @action(detail=False, methods=['get'], url_path='supported-pairs')

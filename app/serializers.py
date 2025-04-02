@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from app.models import JSDatabase, JSMigrateDatabase, JSTask, JSTaskDetail
+from app.models import JSDatabase, JSMigrateDatabase, JSTask, JSSubTask
 from django.contrib.auth import authenticate, get_user_model
 from django.utils.translation import gettext_lazy as _
 
@@ -53,27 +53,27 @@ class DatabaseSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class MigrateDatabaseSerializer(serializers.ModelSerializer):
+class JSMigrateDatabaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = JSMigrateDatabase
         fields = '__all__'
 
 
-class MigrationTaskSerializer(serializers.ModelSerializer):
+class JSSubTaskSerializer(serializers.ModelSerializer):
     class Meta:
-        model = JSTaskDetail
+        model = JSSubTask
         fields = '__all__'
 
 
-class MigrateTableSerializer(serializers.ModelSerializer):
+class JSTaskSerializer(serializers.ModelSerializer):
     source_database = serializers.SerializerMethodField()
     target_database = serializers.SerializerMethodField()
-    tasks = MigrationTaskSerializer(many=True, read_only=True)
+    subtasks = JSSubTaskSerializer(many=True, read_only=True)
 
     class Meta:
         model = JSTask
         fields = '__all__'
-        extra_fields = ['tasks']
+        extra_fields = ['subtasks']
 
     def get_source_database(self, obj):
         if obj.source_db:

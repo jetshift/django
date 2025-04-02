@@ -4,14 +4,14 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 
 from app.custom_responses import CustomResponseMixin
-from app.models import JSTask, JSTaskDetail
-from app.serializers import MigrateTableSerializer, MigrationTaskSerializer
+from app.models import JSTask, JSSubTask
+from app.serializers import JSTaskSerializer, JSSubTaskSerializer
 from jetshift_core.helpers.migrations.tables import read_table_schema, migrate_data
 
 
 class TaskViewSet(CustomResponseMixin, viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
-    serializer_class = MigrateTableSerializer
+    serializer_class = JSTaskSerializer
     queryset = JSTask.objects.all()
 
     def get_queryset(self):
@@ -36,7 +36,7 @@ class TaskViewSet(CustomResponseMixin, viewsets.ModelViewSet):
             source_database = migrate_table.source_db
             target_database = migrate_table.target_db
 
-            task = JSTaskDetail.objects.get(id=task_id)
+            task = JSSubTask.objects.get(id=task_id)
 
             # Source
             success, message, schema = read_table_schema(database=source_database, table_name=task.source_table, table_type='source')
@@ -72,9 +72,9 @@ class TaskViewSet(CustomResponseMixin, viewsets.ModelViewSet):
             # Task fetching logic
             task_id = request.query_params.get('task_id')
             if task_id:
-                migration_task = JSTaskDetail.objects.get(id=task_id)
+                migration_task = JSSubTask.objects.get(id=task_id)
             else:
-                migration_task = JSTaskDetail.objects.filter(status="syncing").first() or JSTaskDetail.objects.filter(status="idle").first()
+                migration_task = JSSubTask.objects.filter(status="syncing").first() or JSSubTask.objects.filter(status="idle").first()
 
             if not migration_task:
                 return Response({'success': False, 'message': 'No idle task found.'}, status=404)
@@ -93,9 +93,9 @@ class TaskViewSet(CustomResponseMixin, viewsets.ModelViewSet):
             return Response({"status": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class MigrationTaskSet(viewsets.ModelViewSet):
-    queryset = JSTaskDetail.objects.all()
-    serializer_class = MigrationTaskSerializer
+class SubTaskViewSet(viewsets.ModelViewSet):
+    queryset = JSSubTask.objects.all()
+    serializer_class = JSSubTaskSerializer
 
     @action(detail=True, methods=['get'], url_path='change-task-status')
     def migrate(self, request, pk=None):

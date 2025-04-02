@@ -81,7 +81,7 @@ class JSTask(models.Model):
         return f'JSTask {self.id}'
 
 
-def default_task_details_config():
+def default_sub_task_config():
     return {
         "live_schema": False,
         "primary_id": "id",
@@ -94,25 +94,25 @@ def default_task_details_config():
     }
 
 
-def default_task_details_stats():
+def default_sub_task_stats():
     return {
         "total_source_items": 0,
         "total_target_items": 0
     }
 
 
-class JSTaskDetail(models.Model):
-    task = models.ForeignKey(JSTask, on_delete=models.CASCADE, related_name='details')
+class JSSubTask(models.Model):
+    task = models.ForeignKey(JSTask, on_delete=models.CASCADE, related_name='subtasks')
     source_table = models.CharField(max_length=255)
     target_table = models.CharField(max_length=255)
     status = models.CharField(max_length=50, choices=Status.choices, default=Status.IDLE)
-    config = models.JSONField(default=default_task_details_config)
-    stats = models.JSONField(default=default_task_details_stats)
+    config = models.JSONField(default=default_sub_task_config)
+    stats = models.JSONField(default=default_sub_task_stats)
     deployment_id = models.CharField(max_length=255)
     error = models.TextField(blank=True, default='')
 
     class Meta:
-        db_table = 'js_task_details'
+        db_table = 'js_subtasks'
 
     def __str__(self):
-        return f'JSTaskDetail {self.id}'
+        return f'JSSubTask {self.id}'
