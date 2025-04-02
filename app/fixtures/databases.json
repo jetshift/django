@@ -1,6 +1,6 @@
 [
   {
-    "model": "app.database",
+    "model": "app.jsdatabase",
     "pk": 1,
     "fields": {
       "title": "SQLite 1",
@@ -13,7 +13,7 @@
     }
   },
   {
-    "model": "app.database",
+    "model": "app.jsdatabase",
     "pk": 2,
     "fields": {
       "title": "MySQL 1",
@@ -30,7 +30,7 @@
     }
   },
   {
-    "model": "app.database",
+    "model": "app.jsdatabase",
     "pk": 3,
     "fields": {
       "title": "Postgres 1",
@@ -47,7 +47,7 @@
     }
   },
   {
-    "model": "app.database",
+    "model": "app.jsdatabase",
     "pk": 4,
     "fields": {
       "title": "Clickhouse 1",

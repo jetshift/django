@@ -1,6 +1,6 @@
 [
   {
-    "model": "app.migratedatabase",
+    "model": "app.jsmigratedatabase",
     "pk": 1,
     "fields": {
       "title": "DBM Job 1",

@@ -76,13 +76,13 @@ def mysql_to_clickhouse_etl_flow(migrate_table_id, task_id):
 def mysql_to_clickhouse_flow(migrate_table_id, task_id, flow_type):
     setup_django()
     import asyncio
-    from app.models import MigrateTable, MigrationTask
+    from app.models import JSTask, JSTaskDetail
     from sqlalchemy import text
 
     js_logger = get_logger()
 
-    migrate_table_obj = MigrateTable.objects.get(id=migrate_table_id)
-    migration_task = MigrationTask.objects.get(id=task_id)
+    migrate_table_obj = JSTask.objects.get(id=migrate_table_id)
+    migration_task = JSTaskDetail.objects.get(id=task_id)
 
     js_logger.info(f"Started '{migrate_table_obj.title}' {flow_type} flow.")
 

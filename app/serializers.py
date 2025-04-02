@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from app.models import Database, MigrateDatabase, MigrateTable, MigrationTask
+from app.models import JSDatabase, JSMigrateDatabase, JSTask, JSTaskDetail
 from django.contrib.auth import authenticate, get_user_model
 from django.utils.translation import gettext_lazy as _
 
@@ -29,7 +29,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         self.user = user
 
-        # ✅ Use get_token to include custom claims
+        # Use get_token to include custom claims
         refresh = self.get_token(user)
 
         return {
@@ -49,19 +49,19 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 class DatabaseSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Database
+        model = JSDatabase
         fields = '__all__'
 
 
 class MigrateDatabaseSerializer(serializers.ModelSerializer):
     class Meta:
-        model = MigrateDatabase
+        model = JSMigrateDatabase
         fields = '__all__'
 
 
 class MigrationTaskSerializer(serializers.ModelSerializer):
     class Meta:
-        model = MigrationTask
+        model = JSTaskDetail
         fields = '__all__'
 
 
@@ -71,7 +71,7 @@ class MigrateTableSerializer(serializers.ModelSerializer):
     tasks = MigrationTaskSerializer(many=True, read_only=True)
 
     class Meta:
-        model = MigrateTable
+        model = JSTask
         fields = '__all__'
         extra_fields = ['tasks']
 

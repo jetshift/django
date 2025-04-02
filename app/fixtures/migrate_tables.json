@@ -1,6 +1,6 @@
 [
   {
-    "model": "app.migratetable",
+    "model": "app.jstask",
     "pk": 1,
     "fields": {
       "type": "migration",
@@ -14,10 +14,10 @@
     }
   },
   {
-    "model": "app.migrationtask",
+    "model": "app.jstaskdetail",
     "pk": 1,
     "fields": {
-      "migrate_table": 1,
+      "task_id": 1,
       "source_table": "users",
       "target_table": "users",
       "status": "idle",
@@ -39,10 +39,10 @@
     }
   },
   {
-    "model": "app.migrationtask",
+    "model": "app.jstaskdetail",
     "pk": 2,
     "fields": {
-      "migrate_table": 1,
+      "task_id": 1,
       "source_table": "test",
       "target_table": "test",
       "status": "idle",
@@ -64,7 +64,7 @@
     }
   },
   {
-    "model": "app.migratetable",
+    "model": "app.jstask",
     "pk": 2,
     "fields": {
       "type": "etl",
@@ -78,10 +78,10 @@
     }
   },
   {
-    "model": "app.migrationtask",
+    "model": "app.jstaskdetail",
     "pk": 3,
     "fields": {
-      "migrate_table": 2,
+      "task_id": 2,
       "source_table": "users",
       "target_table": "users",
       "status": "idle",

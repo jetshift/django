@@ -3,14 +3,15 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from app.views.auth_views import CustomTokenObtainPairView, ProtectedView
-from app.views.views import DatabaseViewSet, MigrateDatabaseViewSet, MigrateTableViewSet, MigrationTaskSet, MigrationViewSet, test_view
+from app.views.task_views import TaskViewSet, MigrationTaskSet
+from app.views.views import DatabaseViewSet, MigrateDatabaseViewSet, MigrationViewSet, test_view
 from app.views.chart_views import ChartsETLTasksView, ChartsDatabasesView
 
 router = DefaultRouter()
 router.register(r'databases', DatabaseViewSet)
 router.register(r'migrate/databases', MigrateDatabaseViewSet)
-router.register(r'migrate/tables', MigrateTableViewSet, basename='migratetable')
-router.register(r'tasks', MigrationTaskSet, basename='task')
+router.register(r'tasks', TaskViewSet, basename='tasks')
+router.register(r'task-details', MigrationTaskSet, basename='taskdetail')
 router.register(r'migrate', MigrationViewSet, basename='migration')
 
 urlpatterns = [
@@ -21,8 +22,8 @@ urlpatterns = [
 ]
 
 urlpatterns += [
-    path('charts/etl-tasks/', ChartsETLTasksView.as_view(), name='charts_etl_tasks'),
     path('charts/databases/', ChartsDatabasesView.as_view(), name='charts_databases'),
+    path('charts/tasks/', ChartsETLTasksView.as_view(), name='charts_etl_tasks'),
 ]
 
 urlpatterns += router.urls
