@@ -3,16 +3,17 @@ import sys
 from jetshift_core.js_logger import get_logger
 
 from jetshift_core.commands.banners import banner
-from jetshift_core.commands.dev import main as dev_main
-from jetshift_core.commands.make import main as make
-from jetshift_core.commands.migrations.migration import main as migration
-from jetshift_core.commands.seeders.seeder import main as seeder
-from jetshift_core.commands.job import main as job
-from jetshift_core.commands.quicker import main as quicker
-from jetshift_core.commands.listener import main as listener
 from jetshift_core.commands.version import show_version
+from jetshift_core.commands.dev import main as dev_main
 
-logger = get_logger(__name__)
+from jetshift_core.commands.make import main as make
+# from jetshift_core.commands.migrations.migration import main as migration
+# from jetshift_core.commands.seeders.seeder import main as seeder
+# from jetshift_core.commands.job import main as job
+# from jetshift_core.commands.quicker import main as quicker
+# from jetshift_core.commands.listener import main as listener
+
+js_logger = get_logger()
 
 
 @click.group(invoke_without_command=True)
@@ -34,25 +35,22 @@ def cli(ctx):
 
 
 # Register Commands
-cli.add_command(dev_main, name="dev")
+# cli.add_command(dev_main, name="dev")
 cli.add_command(make, name="make")
-cli.add_command(migration, name="migrate")
-cli.add_command(seeder, name="seed")
-cli.add_command(job, name="job")
-cli.add_command(quicker, name="quick")
-cli.add_command(listener, name="listen")
+# cli.add_command(migration, name="migrate")
+# cli.add_command(seeder, name="seed")
+# cli.add_command(job, name="job")
+# cli.add_command(quicker, name="quick")
+# cli.add_command(listener, name="listen")
 
 
 # Main entry point
 def main():
     try:
-        logger.info("Starting JetShift CLI")
         cli()
     except Exception as e:
-        logger.error(f"An error occurred: {e}", exc_info=True)
+        js_logger.error(f"An error occurred: {e}", exc_info=True)
         sys.exit(1)
-    finally:
-        logger.info("Shutting down JetShift CLI")
 
 
 if __name__ == "__main__":
