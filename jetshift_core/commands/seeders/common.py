@@ -1,4 +1,4 @@
-def find_dependencies(engine, table_name, dependent_records, visited=None, dependency_order=None):
+def find_dependencies(database, table_name, dependent_records, visited=None, dependency_order=None):
     from jetshift_core.helpers.mysql import get_mysql_table_definition
 
     # Initialize visited and dependency_order if they are not already provided
@@ -27,7 +27,7 @@ def find_dependencies(engine, table_name, dependent_records, visited=None, depen
             for dependency in dependencies:
                 if dependency not in visited:
                     # Recursively call for each dependency
-                    find_dependencies(engine, dependency, dependent_records, visited, dependency_order)
+                    find_dependencies(database, dependency, dependent_records, visited, dependency_order)
 
         return dependency_order
     except Exception as e:
@@ -35,14 +35,24 @@ def find_dependencies(engine, table_name, dependent_records, visited=None, depen
         return {}
 
 
-def table_has_data(engine, table_name):
-    if engine == 'mysql':
-        from jetshift_core.helpers.mysql import check_table_has_data
-        return check_table_has_data(table_name)
+def table_has_data(database, table_name):
+    try:
+        from jetshift_core.helpers.cli.common import read_database_from_id, read_database_from_yml_file
+        from sqlalchemy import create_engine, text
 
-    elif engine == 'clickhouse':
-        from jetshift_core.helpers.clcikhouse import check_table_has_data
-        return check_table_has_data(table_name)
+        # Get connection URL
+        if isinstance(database, int):
+            database_url = read_database_from_id(database, 'connection_url')
+        else:
+            database_url = read_database_from_yml_file(database, 'connection_url')
+
+        engine = create_engine(database_url, future=True)
+
+        with engine.connect() as connection:
+            result = connection.execute(text(f"SELECT 1 FROM `{table_name}` LIMIT 1"))
+            return result.fetchone() is not None
+    except Exception as e:
+        print(e)
 
 
 def min_max_id(engine, table_name):

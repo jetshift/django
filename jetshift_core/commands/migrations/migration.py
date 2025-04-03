@@ -3,12 +3,9 @@ import sys
 import os
 import click
 
-from jetshift_core.helpers.cli.common import read_database_from_id, read_database_from_yml_file
-from jetshift_core.js_logger import get_logger
+from jetshift_core.helpers.cli.common import find_database_dialect
 from jetshift_core.commands.migrations.mysql import migrate as migrate_mysql
 from jetshift_core.commands.migrations.clickhouse import migrate as migrate_clickhouse
-
-logger = get_logger(__name__)
 
 
 def run_migration(database, migration_name, fresh, drop):
@@ -21,20 +18,8 @@ def run_migration(database, migration_name, fresh, drop):
 
         click.echo(f"Migrating table: {migration_name}")
 
-        # Check integer in string
-        if isinstance(database, str) and database.isdigit():
-            database = int(database)
-
         # Find dialect
-        if isinstance(database, str):
-            dialect = read_database_from_yml_file(database, 'dialect')
-        elif isinstance(database, int):
-            dialect = read_database_from_id(database, 'dialect')
-        else:
-            click.echo(f"Please enter correct database!", err=True)
-            sys.exit(1)
-
-        print(f"dialect: {dialect}")
+        dialect = find_database_dialect(database)
 
         # Create table
         if dialect == "mysql":

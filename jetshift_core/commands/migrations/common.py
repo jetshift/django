@@ -105,7 +105,7 @@ def generate_fake_data(engine, table, fields):
     data_info = table.info.get('data', False)
     if data_info:
 
-        csv_path = f'app/migrations/seeders/{table.name}.csv'
+        csv_path = f'play/migrations/seeders/{table.name}.csv'
         if not os.path.exists(csv_path):
             jprint(f"Seeder data '{csv_path}' does not exist.", 'error')
             sys.exit(1)

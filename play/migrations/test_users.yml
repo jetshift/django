@@ -1,5 +1,5 @@
 table_name: test_users
-data: true
+data: false
 columns:
   - name: id
     type: INT

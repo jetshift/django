@@ -31,6 +31,22 @@ def read_database_from_yml_file(database, field=None):
     return db
 
 
+def find_database_dialect(database):
+    # Check integer in string
+    if isinstance(database, str) and database.isdigit():
+        database = int(database)
+
+    # Find dialect
+    if isinstance(database, str):
+        dialect = read_database_from_yml_file(database, 'dialect')
+    elif isinstance(database, int):
+        dialect = read_database_from_id(database, 'dialect')
+    else:
+        dialect = None
+
+    return dialect
+
+
 def create_table(database, table, fresh=False, drop=False):
     from jetshift_core.helpers.common import jprint
     from sqlalchemy import create_engine

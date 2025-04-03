@@ -111,7 +111,7 @@ def ping_clickhouse():
         }
 
 
-def check_table_has_data(table_name):
+def check_table_has_data(database, table_name):
     from jetshift_core.js_logger import get_logger
     logger = get_logger(__name__)
 

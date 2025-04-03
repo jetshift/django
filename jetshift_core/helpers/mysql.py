@@ -57,7 +57,7 @@ def get_mysql_yaml_table_definition(table_name):
     from jetshift_core.commands.migrations.mysql import yaml_table_definition
 
     app_path = os.environ.get('APP_PATH', '')
-    file_path = f'{app_path}app/migrations/{table_name}.yml'
+    file_path = f'{app_path}play/migrations/{table_name}.yml'
     if not os.path.exists(file_path):
         jprint(f"Migration '{file_path}' does not exist.", 'error')
         sys.exit(1)
@@ -81,24 +81,43 @@ def get_mysql_database_table_definition(table_name):
     return table
 
 
-def check_table_has_data(table_name):
-    try:
-        connection = mysql_connect()
-        with connection.cursor() as cursor:
-            cursor.execute(f"SELECT 1 FROM {table_name} LIMIT 1")
-            result = cursor.fetchone()
-            return result is not None
-    except Exception as e:
-        handle_mysql_error(e)
+# def check_table_has_data(database, table_name):
+#     try:
+#         from jetshift_core.helpers.cli.common import read_database_from_id, read_database_from_yml_file
+#         from sqlalchemy import create_engine, text
+#
+#         # Get connection URL
+#         if isinstance(database, int):
+#             database_url = read_database_from_id(database, 'connection_url')
+#         else:
+#             database_url = read_database_from_yml_file(database, 'connection_url')
+#
+#         engine = create_engine(database_url, future=True)
+#
+#         with engine.connect() as connection:
+#             result = connection.execute(text(f"SELECT 1 FROM `{table_name}` LIMIT 1"))
+#             return result.fetchone() is not None
+#     except Exception as e:
+#         handle_mysql_error(e)
 
 
-def get_last_id(table_name, column_name='id'):
+def get_last_id(database, table_name, column_name='id'):
     try:
-        connection = mysql_connect()
-        with connection.cursor() as cursor:
-            cursor.execute(f"SELECT MAX({column_name}) FROM {table_name}")
-            result = cursor.fetchone()
-            return result[0] if result[0] is not None else 0
+        from jetshift_core.helpers.cli.common import read_database_from_id, read_database_from_yml_file
+        from sqlalchemy import create_engine, text
+
+        # Get connection URL
+        if isinstance(database, int):
+            database_url = read_database_from_id(database, 'connection_url')
+        else:
+            database_url = read_database_from_yml_file(database, 'connection_url')
+
+        engine = create_engine(database_url, future=True)
+
+        with engine.connect() as connection:
+            result = connection.execute(text(f"SELECT MAX({column_name}) FROM `{table_name}`"))
+            row = result.fetchone()
+            return row[0] if row and row[0] is not None else 0
     except Exception as e:
         handle_mysql_error(e)
 
