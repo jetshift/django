@@ -83,7 +83,7 @@ class JSTask(models.Model):
 
 def default_sub_task_config():
     return {
-        "live_schema": False,
+        "live_schema": True,
         "primary_id": "id",
         "extract_offset": 0,
         "extract_limit": 10,
@@ -106,10 +106,10 @@ class JSSubTask(models.Model):
     source_table = models.CharField(max_length=255)
     target_table = models.CharField(max_length=255)
     status = models.CharField(max_length=50, choices=Status.choices, default=Status.IDLE)
-    config = models.JSONField(default=default_sub_task_config)
-    stats = models.JSONField(default=default_sub_task_stats)
-    deployment_id = models.CharField(max_length=255)
-    error = models.TextField(blank=True, default='')
+    config = models.JSONField(default=default_sub_task_config, null=True)
+    stats = models.JSONField(default=default_sub_task_stats, null=True)
+    deployment_id = models.CharField(max_length=255, null=True)
+    error = models.TextField(blank=True, default='', null=True)
 
     class Meta:
         db_table = 'js_subtasks'

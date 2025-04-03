@@ -4,8 +4,9 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 
 from app.custom_responses import CustomResponseMixin
-from app.models import JSTask, JSSubTask
+from app.models import JSTask, JSSubTask, default_sub_task_config
 from app.serializers import JSTaskSerializer, JSSubTaskSerializer
+from app.utils.model import normalize_config_types
 from jetshift_core.helpers.migrations.tables import read_table_schema, migrate_data
 
 
@@ -93,9 +94,61 @@ class TaskViewSet(CustomResponseMixin, viewsets.ModelViewSet):
             return Response({"status": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class SubTaskViewSet(viewsets.ModelViewSet):
+class SubTaskViewSet(CustomResponseMixin, viewsets.ModelViewSet):
     queryset = JSSubTask.objects.all()
     serializer_class = JSSubTaskSerializer
+
+    def create(self, request, *args, **kwargs):
+        data = request.data.copy()
+
+        # Merge user config with defaults
+        user_config = data.get('config', {})
+        if isinstance(user_config, str):
+            import json
+            user_config = json.loads(user_config)
+
+        user_config = normalize_config_types(user_config)
+        merged_config = {**default_sub_task_config(), **user_config}
+        data['config'] = merged_config
+
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        instance = serializer.save()
+
+        return self._custom_response(
+            data=serializer.data,
+            message='Subtask created successfully.',
+            success=True,
+            status_code=status.HTTP_201_CREATED
+        )
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+
+        data = request.data.copy()
+
+        # Only merge config if it is provided
+        if 'config' in data:
+            user_config = data['config']
+            if isinstance(user_config, str):
+                import json
+                user_config = json.loads(user_config)
+
+            user_config = normalize_config_types(user_config)
+            merged_config = {**default_sub_task_config(), **user_config}
+            data['config'] = merged_config
+
+        serializer = self.get_serializer(instance, data=data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        updated_instance = serializer.save()
+
+        return self._custom_response(
+            data=serializer.data,
+            message='Subtask updated successfully.',
+            success=True,
+            status_code=status.HTTP_200_OK
+        )
 
     @action(detail=True, methods=['get'], url_path='change-task-status')
     def migrate(self, request, pk=None):
