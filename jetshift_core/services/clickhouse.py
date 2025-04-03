@@ -62,7 +62,7 @@ def extract_data(params):
     js_logger = get_logger()
 
     try:
-        if params.extract_limit:
+        if params.extract_limit != 0:
             fetch_and_extract_limit(params)
         else:
             fetch_and_extract_chunk(params)

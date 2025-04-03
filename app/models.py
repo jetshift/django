@@ -87,7 +87,7 @@ def default_sub_task_config():
         "primary_id": "id",
         "extract_offset": 0,
         "extract_limit": 10,
-        "extract_chunk_size": 30,
+        "extract_chunk_size": 0,
         "truncate_table": False,
         "load_chunk_size": 10,
         "sleep_interval": 1
