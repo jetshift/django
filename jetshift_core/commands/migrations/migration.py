@@ -3,6 +3,7 @@ import sys
 import os
 import click
 
+from jetshift_core.helpers.cli.common import read_database_from_id, read_database_from_yml_file
 from jetshift_core.js_logger import get_logger
 from jetshift_core.commands.migrations.mysql import migrate as migrate_mysql
 from jetshift_core.commands.migrations.clickhouse import migrate as migrate_clickhouse
@@ -10,24 +11,40 @@ from jetshift_core.commands.migrations.clickhouse import migrate as migrate_clic
 logger = get_logger(__name__)
 
 
-def run_migration(engine, migration_name, fresh, drop):
+def run_migration(database, migration_name, fresh, drop):
     try:
         app_path = os.environ.get('APP_PATH', '')
-        file_path = f'{app_path}app/migrations/{migration_name}.yml'
+        file_path = f'{app_path}play/migrations/{migration_name}.yml'
         if not os.path.exists(file_path):
             click.echo(f"Migration '{file_path}' does not exist.", err=True)
             sys.exit(1)
 
         click.echo(f"Migrating table: {migration_name}")
 
-        if engine == "mysql":
-            migrate_mysql(file_path, fresh, drop)
+        # Check integer in string
+        if isinstance(database, str) and database.isdigit():
+            database = int(database)
 
-        elif engine == "clickhouse":
-            migrate_clickhouse(file_path, fresh, drop)
+        # Find dialect
+        if isinstance(database, str):
+            dialect = read_database_from_yml_file(database, 'dialect')
+        elif isinstance(database, int):
+            dialect = read_database_from_id(database, 'dialect')
+        else:
+            click.echo(f"Please enter correct database!", err=True)
+            sys.exit(1)
+
+        print(f"dialect: {dialect}")
+
+        # Create table
+        if dialect == "mysql":
+            migrate_mysql(database, file_path, fresh, drop)
+
+        elif dialect == "clickhouse":
+            migrate_clickhouse(database, file_path, fresh, drop)
 
         else:
-            click.echo(f"Engine '{engine}' is not supported.", err=True)
+            click.echo(f"Dialect '{dialect}' is not supported.", err=True)
             sys.exit(1)
 
         click.echo(f"Migrated table: {migration_name}")
@@ -39,7 +56,7 @@ def run_migration(engine, migration_name, fresh, drop):
 
 
 def list_available_migrations():
-    package_path = f"app/migrations"
+    package_path = f"play/migrations"
 
     if not os.path.exists(package_path):
         click.echo(f"Migration directory '{package_path}' does not exist.", err=True)
@@ -51,21 +68,20 @@ def list_available_migrations():
     return migration_names
 
 
-def run_all_migrations(engine, fresh, drop):
+def run_all_migrations(database, fresh, drop):
     available_migrations = list_available_migrations()
-
     if not available_migrations:
         click.echo("No migrations found.", err=True)
         sys.exit(1)
 
     for migration_name in available_migrations:
-        run_migration(engine, migration_name, fresh, drop)
+        run_migration(database, migration_name, fresh, drop)
 
 
-@click.command(help="Run migrations for a specified database engine.")
+@click.command(help="Run migrations for a specified database.")
 @click.argument("migration", required=False, default=None)
 @click.option(
-    "-e", "--engine", default="mysql", help="Name of the engine (e.g., 'mysql', 'clickhouse'). Default is 'mysql'."
+    "-db", "--database", required=True, help="Name of the database (databases.yml)"
 )
 @click.option(
     "-f", "--fresh", is_flag=True, help="Truncate the table before running the migration."
@@ -73,14 +89,14 @@ def run_all_migrations(engine, fresh, drop):
 @click.option(
     "-d", "--drop", is_flag=True, help="Drop the table from the database."
 )
-def main(migration, engine, fresh, drop):
-    click.echo(f"Running migrations for engine '{engine}'")
+def main(migration, database, fresh, drop):
+    click.echo(f"Running migrations for database '{database}'")
     click.echo("----------")
 
     if migration:
-        run_migration(engine, migration, fresh, drop)
+        run_migration(database, migration, fresh, drop)
     else:
-        run_all_migrations(engine, fresh, drop)
+        run_all_migrations(database, fresh, drop)
 
 
 if __name__ == "__main__":

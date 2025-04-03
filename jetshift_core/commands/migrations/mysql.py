@@ -1,7 +1,10 @@
 import yaml
-from jetshift_core.utils.database.sqlalchemy_mysql import *
+from sqlalchemy import MetaData, Table, Column, String, DateTime
 from sqlalchemy.dialects.mysql import *
 from sqlalchemy.sql import *
+from jetshift_core.helpers.cli.common import create_table
+
+metadata = MetaData()
 
 # Map YAML types to SQLAlchemy types
 type_mapping = {
@@ -78,8 +81,8 @@ def yaml_table_definition(file_path):
     )
 
 
-def migrate(file_path, fresh, drop):
+def migrate(database, file_path, fresh, drop):
     table_def = yaml_table_definition(file_path)
 
     # Create the table
-    create_table(table_def, fresh, drop)
+    create_table(database, table_def, fresh, drop)

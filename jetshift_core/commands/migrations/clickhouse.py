@@ -1,6 +1,10 @@
 import yaml
-from jetshift_core.utils.database.sqlalchemy_clickhouse import *
+
+from jetshift_core.helpers.cli.common import create_table
+from sqlalchemy import MetaData, Table, Column, func
 from clickhouse_sqlalchemy import types, engines
+
+metadata = MetaData()
 
 # Map YAML types to SQLAlchemy types
 type_mapping = {
@@ -86,8 +90,8 @@ def yaml_table_definition(file_path):
     )
 
 
-def migrate(file_path, fresh, drop):
+def migrate(database, file_path, fresh, drop):
     table_def = yaml_table_definition(file_path)
 
     # Create the table
-    create_table(table_def, fresh, drop)
+    create_table(database, table_def, fresh, drop)

@@ -1,0 +1,7 @@
+mysql:
+  dialect: mysql
+  connection_url: mysql+pymysql://user:password@localhost:3306/database
+
+clickhouse:
+  dialect: clickhouse
+  connection_url: clickhouse+http://default:password@localhost:8123/default

@@ -1,4 +1,4 @@
-table_name: users
+table_name: test_users
 data: true
 columns:
   - name: id

@@ -2,9 +2,10 @@ import os
 import requests
 import importlib
 import multiprocessing
+
 from jetshift_core.js_logger import get_logger
 
-logger = get_logger(__name__)
+js_logger = get_logger()
 
 
 def jprint(message, type='info', all=False, key=None):
@@ -121,9 +122,9 @@ def run_job_in_new_process(module_name):
             p.join()
             return True
     except ImportError as e:
-        logger.error(f"Error importing module {module_name}: {e}")
+        js_logger.error(f"Error importing module {module_name}: {e}")
     except Exception as e:
-        logger.error(f"Error running main function in module {module_name}: {e}")
+        js_logger.error(f"Error running main function in module {module_name}: {e}")
     return False
 
 
@@ -140,19 +141,19 @@ def run_command_subprocess(command):
         process.stdout.close()
         process.wait()
     except Exception as e:
-        logger.error(f"Error running command {command}: {e}")
+        js_logger.error(f"Error running command {command}: {e}")
     return False
 
 
 def run_multi_process(function_to_call, *params):
-    logger.info(f"Running function: {function_to_call.__name__} with params: {params}")
+    js_logger.info(f"Running function: {function_to_call.__name__} with params: {params}")
 
     try:
         p = multiprocessing.Process(target=function_to_call, args=params)
         p.start()
-        logger.info("Process started successfully.")
+        js_logger.info("Process started successfully.")
     except Exception as e:
-        logger.error(f"An error occurred while running the process: {str(e)}")
+        js_logger.error(f"An error occurred while running the process: {str(e)}")
 
 
 def convert_field_to_python(field_type):
