@@ -50,7 +50,7 @@ def run_seeder(database, seeder_name, records, dependent_records, skip_dependenc
 @click.option(
     "-sde", is_flag=True, default=False, help="Skip dependent seeders if data already exists. Default is False."
 )
-def main(database, seeder, n, nd, sd, sde):
+def seed_command(database, seeder, n, nd, sd, sde):
     if seeder is None:
         seeder_list = [os.path.splitext(os.path.basename(file))[0] for file in glob.glob('play/migrations/*.yml')]
         if not seeder_list:
@@ -61,7 +61,3 @@ def main(database, seeder, n, nd, sd, sde):
             run_seeder(database, seeder_name, n, nd, sd, sde)
     else:
         run_seeder(database, seeder, n, nd, sd, sde)
-
-
-if __name__ == "__main__":
-    main()

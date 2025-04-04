@@ -111,19 +111,6 @@ def ping_clickhouse():
         }
 
 
-def check_table_has_data(database, table_name):
-    from jetshift_core.js_logger import get_logger
-    logger = get_logger(__name__)
-
-    try:
-        with clickhouse_client() as clickhouse:
-            result = clickhouse.execute(f"SELECT 1 FROM {table_name} LIMIT 1")
-            return len(result) > 0
-    except Exception as e:
-        logger.error("Failed to check data for table '%s': %s", table_name, e)
-        return False
-
-
 def get_last_id_from_clickhouse(target_engine, table_name, primary_id='id'):
     from sqlalchemy import MetaData, Table, select, desc
 

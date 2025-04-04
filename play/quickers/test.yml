@@ -1,15 +1,15 @@
 migrations:
   fresh: true
-  engines:
-    # - "mysql"
-    - "clickhouse"
+  databases:
+    - "mysql"
+    # - "clickhouse"
 
 seeders:
-  engines:
-    # - "mysql"
-    - "clickhouse"
+  databases:
+    - "mysql"
+    # - "clickhouse"
   names:
-    - "users -n 50"
+    - "test_users -n 50"
     # - "all"
 
 #jobs:

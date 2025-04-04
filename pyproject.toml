@@ -28,7 +28,7 @@ dependencies = [
     "pandas==2.2.2",
     "sqlalchemy==2.0.39",
     "faker==27.4.0",
-    "click==8.1.7",
+    "click==8.1.8",
     "pyyaml==6.0.2"
 ]
 

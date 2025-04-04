@@ -30,20 +30,20 @@ def parse_seeder_string(item):
     return seeder_info
 
 
-def run_migrations(engine, names, fresh):
-    from jetshift_core.commands.migrations.migration import main as run_migration
+def run_migrations(database, names, fresh):
+    from jetshift_core.commands.migrations.migration import migration_command
 
     if names:
         for name in names:
-            result = runner.invoke(run_migration, [name, '--engine', engine] + (['--fresh'] if fresh else []))
+            result = runner.invoke(migration_command, [name, '--database', database] + (['--fresh'] if fresh else []))
             click.echo(result.output)
     else:
-        result = runner.invoke(run_migration, ['--engine', engine] + (['--fresh'] if fresh else []))
+        result = runner.invoke(migration_command, ['--database', database] + (['--fresh'] if fresh else []))
         click.echo(result.output)
 
 
-def run_seeders(items, engine='mysql'):
-    from jetshift_core.commands.seeders.seeder import main as run_seeder
+def run_seeders(items, database='mysql'):
+    from jetshift_core.commands.seeders.seeder import seed_command
     for item in items:
         parsed_info = parse_seeder_string(item)
         seeder = parsed_info.get("seeder")
@@ -54,7 +54,7 @@ def run_seeders(items, engine='mysql'):
 
         # Dynamically construct the command arguments
         args = [
-            "--engine", engine,  # engine
+            "--database", database,  # database
             seeder,  # Seeder name
             "-n", str(n),  # Number of records
             "-nd", str(nd),  # Dependent records
@@ -67,7 +67,7 @@ def run_seeders(items, engine='mysql'):
             args.append("-sde")
 
         # Invoke the command using the runner
-        result = runner.invoke(run_seeder, args)
+        result = runner.invoke(seed_command, args)
 
         click.echo(result.output)
 

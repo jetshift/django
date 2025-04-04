@@ -74,7 +74,7 @@ def run_all_migrations(database, fresh, drop):
 @click.option(
     "-d", "--drop", is_flag=True, help="Drop the table from the database."
 )
-def main(migration, database, fresh, drop):
+def migration_command(migration, database, fresh, drop):
     click.echo(f"Running migrations for database '{database}'")
     click.echo("----------")
 
@@ -82,7 +82,3 @@ def main(migration, database, fresh, drop):
         run_migration(database, migration, fresh, drop)
     else:
         run_all_migrations(database, fresh, drop)
-
-
-if __name__ == "__main__":
-    main()

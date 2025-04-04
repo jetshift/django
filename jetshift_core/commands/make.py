@@ -105,7 +105,7 @@ def make_quicker(new_quicker_name):
 @click.option(
     "-jt", "--jobtype", default="common", help="Type of the job (e.g., 'simple', 'mysql_clickhouse'). Default is 'simple'."
 )
-def main(type, name, engine, jobtype):
+def make_command(type, name, engine, jobtype):
     if type == "migration":
         make_migration(engine, name)
     elif type == "job":
@@ -114,7 +114,3 @@ def main(type, name, engine, jobtype):
         make_quicker(name)
     else:
         jprint("Invalid make type. Must be 'migration', 'job', or 'quicker'.", 'error')
-
-
-if __name__ == "__main__":
-    main()
