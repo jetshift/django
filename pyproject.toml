@@ -18,8 +18,8 @@ dependencies = [
     "djangorestframework-simplejwt==5.5.0",
     "django-cors-headers==4.6.0",
     "psycopg2==2.9.10",
-    "clickhouse-sqlalchemy==0.3.2",
     #    "jetshift-core==1.0.0a32",
+    "clickhouse-sqlalchemy==0.3.2",
     # jetshift-core (previously used via PyPI)
     "prefect==3.2.14",
     "pymysql==1.1.1",

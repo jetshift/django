@@ -20,6 +20,17 @@ def map_mysql_to_clickhouse(mysql_type):
     return mysql_to_clickhouse.get(mysql_type.lower(), 'String')
 
 
+def mysql_table_exists(connection, table_name, database_name):
+    from sqlalchemy import text
+    result = connection.execute(text("""
+        SELECT COUNT(*)
+        FROM information_schema.tables
+        WHERE table_schema = :db_name AND table_name = :table_name
+    """), {"db_name": database_name, "table_name": table_name})
+
+    return result.scalar() > 0
+
+
 def fetch_mysql_schema(database, table):
     from jetshift_core.helpers.database import get_db_connection_url
     from sqlalchemy import create_engine, text
@@ -169,8 +180,8 @@ def fetch_and_extract_limit(params):
 
     # If primary_id is defined, apply the last_id filtering
     if primary_id:
-        last_id = get_last_id_from_clickhouse(params.target_engine, table_name, primary_id)
-        js_logger.info(f"Last ClickHouse {table_name} {primary_id}: {last_id}")
+        last_id = get_last_id_from_clickhouse(params.target_engine, params.target_table, primary_id)
+        js_logger.info(f"Last ClickHouse {params.target_table} {primary_id}: {last_id}")
         stmt = stmt.where(table.c[primary_id] > last_id)
 
     # Apply limit and offset

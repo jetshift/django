@@ -1,6 +1,6 @@
 import pandas as pd
 import time
-from prefect import flow, task
+from prefect import task as prefect_task
 from sqlalchemy import create_engine, text
 
 from jetshift_core.helpers.database import get_db_connection_url
@@ -10,9 +10,16 @@ from jetshift_core.helpers.migrations.tables import read_table_schema
 from jetshift_core.helpers.mysql import *
 
 
-def create_mysql_to_clickhouse_table(table_name, selected_database, source_database):
+def clickhouse_table_exists(connection, table_name, database_name):
+    from sqlalchemy import text
+    result = connection.execute(text(f"SELECT count() FROM system.tables WHERE name = :table_name AND database = :db_name"),
+                                {"table_name": table_name, "db_name": database_name})
+    return result.scalar() > 0
+
+
+def create_mysql_to_clickhouse_table(task, selected_database, source_database):
     try:
-        columns = fetch_mysql_schema(source_database, table_name)
+        columns = fetch_mysql_schema(source_database, task.source_table)
         ch_columns = []
         primary_key_column = None
 
@@ -36,9 +43,9 @@ def create_mysql_to_clickhouse_table(table_name, selected_database, source_datab
         order_by = primary_key_column if primary_key_column else 'tuple()'
 
         clickhouse_ddl = f"""
-        CREATE TABLE {table_name} (
+        CREATE TABLE {task.target_table} (
             {columns_str}
-        ) ENGINE = MergeTree()
+        ) ENGINE = ReplacingMergeTree()
         ORDER BY {order_by};
         """
 
@@ -57,7 +64,7 @@ def create_mysql_to_clickhouse_table(table_name, selected_database, source_datab
         return False, f"Failed to create ClickHouse table. Error: {str(e)}"
 
 
-@task(cache_key_fn=lambda *args: None)
+@prefect_task(cache_key_fn=lambda *args: None)
 def extract_data(params):
     js_logger = get_logger()
 
@@ -73,7 +80,7 @@ def extract_data(params):
     return params.output_path
 
 
-@task(cache_key_fn=lambda *args: None)
+@prefect_task(cache_key_fn=lambda *args: None)
 def load_data(params):
     js_logger = get_logger()
 
@@ -84,7 +91,7 @@ def load_data(params):
     # 🔎 Step 1: Read target table schema from ClickHouse
     success, message, schema = read_table_schema(
         database=params.target_db,
-        table_name=params.target_table,
+        task=params,
         table_type='target'
     )
 

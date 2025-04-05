@@ -89,7 +89,33 @@ def create_database_engine(database_model):
     return create_engine(connection_url, future=True)
 
 
-def create_table(table_name, selected_database, source_database):
+def check_table_exists(connection, database, table_name):
+    from sqlalchemy import inspect, text
+
+    try:
+        if database.dialect == "clickhouse":
+            result = connection.execute(text("""
+                SELECT count() FROM system.tables WHERE name = :table_name AND database = :db_name
+            """), {"table_name": table_name, "db_name": database.database})
+            return result.scalar() > 0
+
+        elif database.dialect == "mysql":
+            result = connection.execute(text("""
+                SELECT COUNT(*) FROM information_schema.tables 
+                WHERE table_schema = :db_name AND table_name = :table_name
+            """), {"db_name": database.database, "table_name": table_name})
+            return result.scalar() > 0
+
+        else:
+            inspector = inspect(connection)
+            return inspector.has_table(table_name)
+
+    except Exception as e:
+        # Optional: log or handle dialect-specific error here
+        raise RuntimeError(f"Error checking table existence: {e}")
+
+
+def create_table(task, selected_database, source_database):
     from jetshift_core.services.clickhouse import create_mysql_to_clickhouse_table
 
     source_dialect = source_database.dialect
@@ -97,6 +123,6 @@ def create_table(table_name, selected_database, source_database):
 
     # ClickHouse
     if source_dialect == 'mysql' and target_dialect == 'clickhouse':
-        return create_mysql_to_clickhouse_table(table_name, selected_database, source_database)
+        return create_mysql_to_clickhouse_table(task, selected_database, source_database)
 
     return False, f"Unsupported dialect pairs! Source: {source_dialect} & Target: {target_dialect}"

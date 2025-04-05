@@ -40,7 +40,7 @@ class TaskViewSet(CustomResponseMixin, viewsets.ModelViewSet):
             task = JSSubTask.objects.get(id=task_id)
 
             # Source
-            success, message, schema = read_table_schema(database=source_database, table_name=task.source_table, table_type='source')
+            success, message, schema = read_table_schema(database=source_database, task=task, table_type='source')
             source = {
                 "success": success,
                 "message": message,
@@ -50,7 +50,7 @@ class TaskViewSet(CustomResponseMixin, viewsets.ModelViewSet):
             }
 
             # Target
-            success, message, schema = read_table_schema(database=target_database, table_name=task.target_table, table_type='target', create=create_table, source_db=migrate_table.source_db)
+            success, message, schema = read_table_schema(database=target_database, task=task, table_type='target', create=create_table, source_db=migrate_table.source_db)
             target = {
                 "success": success,
                 "message": message,
