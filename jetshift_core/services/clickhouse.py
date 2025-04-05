@@ -88,14 +88,14 @@ def load_data(params):
         js_logger.warning(f"No data to load for {params.target_table}")
         return False
 
-    # 🔎 Step 1: Read target table schema from ClickHouse
+    # Step 1: Read target table schema from ClickHouse
     success, message, schema = read_table_schema(
         database=params.target_db,
-        task=params,
+        task=params.task,
         table_type='target'
     )
 
-    # 🔎 Step 2: Precompute pandas dtypes and date columns
+    # Step 2: Precompute pandas dtypes and date columns
     pandas_dtypes = {}
     parse_date_columns = []
 
@@ -110,9 +110,8 @@ def load_data(params):
     js_logger.info(f"Pandas dtypes: {pandas_dtypes}")
     js_logger.info(f"Date columns for parsing: {parse_date_columns}")
 
-    # 🔎 Step 3: Load and insert CSV chunk-by-chunk with auto dtype parsing
+    # Step 3: Load and insert CSV chunk-by-chunk with auto dtype parsing
     num_rows = 0
-    last_inserted_id = None
 
     try:
         for chunk in pd.read_csv(
@@ -125,7 +124,7 @@ def load_data(params):
         ):
             # No need for per-column type conversion here
 
-            # 🔄 Insert chunk into ClickHouse
+            # Insert chunk into ClickHouse
             success, last_inserted_id = insert_into_clickhouse(
                 params.target_engine,
                 params.target_table,

@@ -43,6 +43,7 @@ def prepare_params(migrate_table_obj, migration_task, source_engine, target_engi
         load_chunk_size=int(migration_task.config.get('load_chunk_size', 10)),
         sleep_interval=int(migration_task.config.get('sleep_interval', 1)),
     ))
+    params.task = migration_task
     params.output_path = f"data/{params.source_table}.csv"
 
     return params

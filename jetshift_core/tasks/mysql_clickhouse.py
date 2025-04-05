@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 from prefect import flow
 from pathlib import Path
 
@@ -16,7 +14,6 @@ def mysql_to_clickhouse_flow_deploy(migrate_table_obj, migration_task):
 
     # Debug
     # mysql_to_clickhouse_flow(migrate_table_obj.id, migration_task.id, 'migration')
-    # return None
 
     # Step 1: Determine the flow function name
     flow_function_name = "mysql_to_clickhouse_migration_flow"
@@ -39,8 +36,8 @@ def mysql_to_clickhouse_flow_deploy(migrate_table_obj, migration_task):
         },
         work_pool_name="default-agent-pool",
         tags=["mysql", "clickhouse", "auto"],
-        # cron="* * * * *",  # Cron expression for every minute
-        interval=timedelta(minutes=1)  # Schedule to run every minute
+        cron=migration_task.cron,  # Cron expression
+        # interval=timedelta(minutes=1)  # Schedule to run every minute
     )
 
     js_logger.info(f"Deployment {deployment_id} registered.")

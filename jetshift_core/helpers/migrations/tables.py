@@ -1,6 +1,6 @@
 import importlib
 from jetshift_core.js_logger import get_logger
-from sqlalchemy import create_engine, MetaData, Table
+from sqlalchemy import create_engine, MetaData, Table, text
 from sqlalchemy.exc import SQLAlchemyError
 
 from jetshift_core.helpers.database import get_db_connection_url, create_table, check_table_exists
@@ -40,6 +40,18 @@ def read_table_schema(database, task, table_type='source', create=False, source_
 
                 metadata = MetaData()
                 table = Table(table_name, metadata, autoload_with=connection)
+
+                # Counting table's rows
+                try:
+                    source_count_result = connection.execute(text(f"SELECT COUNT(*) FROM {table_name}"))
+                    total_items = source_count_result.scalar() or 0
+                    if table_type == 'source':
+                        task.stats['total_source_items'] = total_items
+                    if table_type == 'target':
+                        task.stats['total_target_items'] = total_items
+                    task.save()
+                except Exception as e:
+                    return False, f"Counting table's rows: {str(e)}", []
 
         except SQLAlchemyError as e:
             return False, f"SQLAlchemy error occurred: {str(e)}", []
@@ -86,16 +98,6 @@ def migrate_data(migrate_table_obj, migration_task):
 
         # Run without threading
         flow_func(migrate_table_obj, migration_task)
-
-        # Define the worker function that runs the flow
-        # def flow_worker():
-        #     js_logger.info(f"[{threading.current_thread().name}] Flow started")
-        #     flow_func(migrate_table_obj, task)
-        #     js_logger.info(f"[{threading.current_thread().name}] Flow completed")
-        #
-        # # Decoupled execution - Don't block main thread with future.result()
-        # executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix="MigrationThread")
-        # executor.submit(flow_worker)
 
         # Return immediately after starting the thread
         return True, "Data migration flow run successfully"

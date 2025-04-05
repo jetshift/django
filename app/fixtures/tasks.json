@@ -35,6 +35,7 @@
         "total_source_items": 0,
         "total_target_items": 0
       },
+      "cron": "* * * * *",
       "error": ""
     }
   },
@@ -60,6 +61,7 @@
         "total_source_items": 0,
         "total_target_items": 0
       },
+      "cron": "* * * * *",
       "error": ""
     }
   },
@@ -99,6 +101,7 @@
         "total_source_items": 0,
         "total_target_items": 0
       },
+      "cron": "* * * * *",
       "error": ""
     }
   }

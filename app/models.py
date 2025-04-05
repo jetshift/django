@@ -109,6 +109,7 @@ class JSSubTask(models.Model):
     config = models.JSONField(default=default_sub_task_config, null=True)
     stats = models.JSONField(default=default_sub_task_stats, null=True)
     deployment_id = models.CharField(max_length=255, null=True)
+    cron = models.CharField(max_length=255, default='* * * * *')
     error = models.TextField(blank=True, default='', null=True)
 
     class Meta:
