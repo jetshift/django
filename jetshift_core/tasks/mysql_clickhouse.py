@@ -130,16 +130,18 @@ def mysql_to_clickhouse_flow(migrate_table_id, task_id, flow_type):
     js_logger.info(f"Total migrated items: {total_migrated_items}")
 
     task_status = "syncing"
+    migration_task_status = "syncing"
 
     # Compare & pause migration (only for migration flow)
-    if flow_type == "migration" and total_source_items == total_target_items:
+    if flow_type == "migration" and total_source_items == total_migrated_items:
         # Pause it immediately after deploying
         asyncio.run(pause_prefect_deployment(migration_task.deployment_id))
 
-        migration_task.status = 'completed'
+        migration_task_status = 'completed'
         task_status = 'completed'
 
     # Update task
+    migration_task.status = migration_task_status
     migration_task.stats['total_source_items'] = total_source_items
     migration_task.stats['total_target_items'] = total_migrated_items
     migration_task.save()
