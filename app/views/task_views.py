@@ -24,6 +24,8 @@ class TaskViewSet(CustomResponseMixin, viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'], url_path='schema')
     def schema(self, request, pk=None):
+        success = True
+        message = "Schema fetched successfully"
         source = {}
         target = {}
         try:
@@ -40,23 +42,23 @@ class TaskViewSet(CustomResponseMixin, viewsets.ModelViewSet):
             task = JSSubTask.objects.get(id=task_id)
 
             # Source
-            success, message, schema = read_table_schema(database=source_database, task=task, table_type='source')
+            success_source, message_source, schema_source = read_table_schema(database=source_database, task=task, table_type='source')
             source = {
-                "success": success,
-                "message": message,
+                "success": success_source,
+                "message": message_source,
                 "database": migrate_table.source_db.title,
                 "table": task.source_table,
-                "schema": schema,
+                "schema": schema_source,
             }
 
             # Target
-            success, message, schema = read_table_schema(database=target_database, task=task, table_type='target', create=create_table, source_db=migrate_table.source_db)
+            success_target, message_target, schema_target = read_table_schema(database=target_database, task=task, table_type='target', create=create_table, source_db=migrate_table.source_db)
             target = {
-                "success": success,
-                "message": message,
+                "success": success_target,
+                "message": message_target,
                 "database": migrate_table.target_db.title,
                 "table": task.target_table,
-                "schema": schema,
+                "schema": schema_target,
             }
 
             if success:
