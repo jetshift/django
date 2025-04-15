@@ -168,3 +168,4 @@ data/
 local/
 *.rdb
 *databases.yml
+supervisord.pid
