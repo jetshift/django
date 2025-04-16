@@ -54,7 +54,6 @@ def check_database_connection(database):
             raise ValueError(f"Unsupported dialect: {database.dialect}")
 
         database_url = get_db_connection_url(database)
-        print(database_url)
         engine = create_engine(database_url, future=True)
         with engine.connect() as connection:
 
