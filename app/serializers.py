@@ -48,9 +48,27 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 
 class DatabaseSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=False)
+
     class Meta:
         model = JSDatabase
         fields = '__all__'
+
+    def create(self, validated_data):
+        password = validated_data.pop('password', None)
+        instance = super().create(validated_data)
+        if password:
+            instance.password = password  # Triggers model encryption
+            instance.save()
+        return instance
+
+    def update(self, instance, validated_data):
+        password = validated_data.pop('password', None)
+        instance = super().update(instance, validated_data)
+        if password:
+            instance.password = password
+            instance.save()
+        return instance
 
 
 class JSMigrateDatabaseSerializer(serializers.ModelSerializer):
@@ -68,7 +86,7 @@ class JSSubTaskSerializer(serializers.ModelSerializer):
 class JSTaskSerializer(serializers.ModelSerializer):
     source_database = serializers.SerializerMethodField()
     target_database = serializers.SerializerMethodField()
-    subtasks = JSSubTaskSerializer(many=True, read_only=True)
+    subtasks = serializers.SerializerMethodField()
 
     class Meta:
         model = JSTask
@@ -77,16 +95,14 @@ class JSTaskSerializer(serializers.ModelSerializer):
 
     def get_source_database(self, obj):
         if obj.source_db:
-            return {
-                "id": obj.source_db.id,
-                "title": obj.source_db.title
-            }
+            return {"id": obj.source_db.id, "title": obj.source_db.title}
         return None
 
     def get_target_database(self, obj):
         if obj.target_db:
-            return {
-                "id": obj.target_db.id,
-                "title": obj.target_db.title
-            }
+            return {"id": obj.target_db.id, "title": obj.target_db.title}
         return None
+
+    def get_subtasks(self, obj):
+        ordered_subtasks = obj.subtasks.all().order_by('-id')
+        return JSSubTaskSerializer(ordered_subtasks, many=True).data

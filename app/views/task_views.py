@@ -13,10 +13,10 @@ from jetshift_core.helpers.migrations.tables import read_table_schema, migrate_d
 class TaskViewSet(CustomResponseMixin, viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = JSTaskSerializer
-    queryset = JSTask.objects.all()
+    queryset = JSTask.objects.all().order_by('-id')
 
     def get_queryset(self):
-        queryset = JSTask.objects.all()
+        queryset = JSTask.objects.all().order_by('-id')
         type_param = self.request.query_params.get('type')
         if type_param:
             queryset = queryset.filter(type=type_param)
@@ -97,7 +97,7 @@ class TaskViewSet(CustomResponseMixin, viewsets.ModelViewSet):
 
 
 class SubTaskViewSet(CustomResponseMixin, viewsets.ModelViewSet):
-    queryset = JSSubTask.objects.all()
+    queryset = JSSubTask.objects.all().order_by('-id')
     serializer_class = JSSubTaskSerializer
 
     def create(self, request, *args, **kwargs):

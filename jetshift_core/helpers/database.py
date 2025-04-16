@@ -6,6 +6,8 @@ def get_db_connection_url(database):
     import os
 
     database_url = ''
+    password = database.password or ''  # handle None safely
+
     if database.dialect == 'sqlite':
         path = "instance/" + database.database
         if not os.path.isfile(path):
@@ -14,7 +16,7 @@ def get_db_connection_url(database):
 
     if database.dialect == 'mysql':
         database_url = (
-            f"mysql+pymysql://{database.username}:{database.password}@{database.host}:{database.port}/{database.database}"
+            f"mysql+pymysql://{database.username}:{password}@{database.host}:{database.port}/{database.database}"
             "?connect_timeout=5"
         )
 
@@ -23,7 +25,7 @@ def get_db_connection_url(database):
 
     if database.dialect == 'postgresql':
         database_url = (
-            f"postgresql+psycopg://{database.username}:{database.password}@{database.host}:{database.port}/{database.database}"
+            f"postgresql+psycopg://{database.username}:{password}@{database.host}:{database.port}/{database.database}"
             "?connect_timeout=5"
         )
 
@@ -32,7 +34,7 @@ def get_db_connection_url(database):
 
     if database.dialect == 'clickhouse':
         database_url = (
-            f"clickhouse+http://{database.username}:{database.password}@{database.host}:{database.port}/{database.database}"
+            f"clickhouse+http://{database.username}:{password}@{database.host}:{database.port}/{database.database}"
             "?connect_timeout=5&send_receive_timeout=5"
         )
 
@@ -52,6 +54,7 @@ def check_database_connection(database):
             raise ValueError(f"Unsupported dialect: {database.dialect}")
 
         database_url = get_db_connection_url(database)
+        print(database_url)
         engine = create_engine(database_url, future=True)
         with engine.connect() as connection:
 

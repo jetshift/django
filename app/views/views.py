@@ -32,7 +32,7 @@ class DatabaseViewSet(CustomResponseMixin, viewsets.ModelViewSet):
     serializer_class = DatabaseSerializer
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        queryset = super().get_queryset().order_by('-id')
         db_type = self.request.query_params.get('type', None)
 
         if db_type:
@@ -65,7 +65,7 @@ class MigrateDatabaseViewSet(CustomResponseMixin, viewsets.ModelViewSet):
 
 class MigrationViewSet(ViewSet):
     serializer_class = JSTaskSerializer
-    queryset = JSTask.objects.all()
+    queryset = JSTask.objects.all().order_by('-id')
 
     @action(detail=False, methods=['get'], url_path='supported-pairs')
     def supported_pairs(self, request):
