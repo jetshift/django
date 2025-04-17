@@ -17,6 +17,7 @@ class JSDatabase(models.Model):
         ('sqlite', 'SQLite'),
         ('mysql', 'MySQL'),
         ('postgresql', 'PostgreSQL'),
+        ('clickhouse', 'ClickHouse'),
     ]
 
     TYPE_CHOICES = [
