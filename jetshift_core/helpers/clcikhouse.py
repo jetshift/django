@@ -36,6 +36,9 @@ def prepare_params(migrate_table_obj, migration_task, source_engine, target_engi
         # Get config
         live_schema=bool(migration_task.config.get('live_schema', False)),
         primary_id=migration_task.config.get('primary_id', None),
+        version_column=migration_task.config.get('version_column', None),
+        detect_changes=migration_task.config.get('detect_changes', None),
+        keep_version_rows=migration_task.config.get('keep_version_rows', False),
         extract_offset=int(migration_task.config.get('extract_offset', 0)),
         extract_limit=int(migration_task.config.get('extract_limit', 10)),
         extract_chunk_size=int(migration_task.config.get('extract_chunk_size', 50)),
@@ -44,7 +47,7 @@ def prepare_params(migrate_table_obj, migration_task, source_engine, target_engi
         sleep_interval=int(migration_task.config.get('sleep_interval', 1)),
     ))
     params.task = migration_task
-    params.output_path = f"data/{params.source_table}.csv"
+    params.output_path = f"data/{migration_task.id}-{params.source_table}.csv"
 
     return params
 
@@ -175,6 +178,21 @@ def insert_into_clickhouse(target_engine, table_name, data_chunk):
     else:
         js_logger.info(f'{table_name}: No data to insert')
         return False, last_inserted_id
+
+
+def optimize_table_final(target_engine, table_name):
+    from sqlalchemy import text
+    from jetshift_core.js_logger import get_logger
+    js_logger = get_logger()
+
+    try:
+        sql = f"OPTIMIZE TABLE {table_name} FINAL"
+        with target_engine.connect() as connection:
+            connection.execute(text(sql))
+            js_logger.info(f"{table_name}: OPTIMIZE FINAL executed successfully.")
+
+    except Exception as e:
+        js_logger.error(f"{table_name}: Error optimizing table. Error: {str(e)}")
 
 
 def insert_update_clickhouse(table_name, table_fields, data):

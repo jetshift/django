@@ -12,8 +12,9 @@ from jetshift_core.js_logger import get_logger
 def mysql_to_clickhouse_flow_deploy(migrate_table_obj, migration_task):
     js_logger = get_logger()
 
-    # Debug
-    # mysql_to_clickhouse_flow(migrate_table_obj.id, migration_task.id, 'migration')
+    # # Debug
+    # mysql_to_clickhouse_flow(migrate_table_obj.id, migration_task.id, 'etl')
+    # return None
 
     # Step 1: Determine the flow function name
     flow_function_name = "mysql_to_clickhouse_migration_flow"
@@ -25,11 +26,18 @@ def mysql_to_clickhouse_flow_deploy(migrate_table_obj, migration_task):
     source_dir = Path(__file__).parent.resolve()  # Gets the full directory path
 
     # Step 3: Deploy using the dynamically selected function
+    detect_changes = migration_task.config.get('detect_changes', '')
+
+    if detect_changes:
+        name = f"{migrate_table_obj.title} : Task {migration_task.id} | Detect changes {detect_changes} min ({migration_task.source_table} to {migration_task.target_table}) Deployment"
+    else:
+        name = f"{migrate_table_obj.title} : Task {migration_task.id} ({migration_task.source_table} to {migration_task.target_table}) Deployment"
+
     deployment_id = flow_function.from_source(
         source=str(source_dir),  # must be a directory
         entrypoint=f"{Path(__file__).name}:{flow_function_name}"
     ).deploy(
-        name=f"{migrate_table_obj.title} : Task {migration_task.id} ({migration_task.source_table} to {migration_task.target_table}) Deployment",
+        name=name,
         parameters={
             "migrate_table_id": migrate_table_obj.id,
             "task_id": migration_task.id

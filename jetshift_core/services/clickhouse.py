@@ -4,7 +4,7 @@ from prefect import task as prefect_task
 from sqlalchemy import create_engine, text
 
 from jetshift_core.helpers.database import get_db_connection_url
-from jetshift_core.helpers.clcikhouse import insert_into_clickhouse, get_clickhouse_to_pandas_type
+from jetshift_core.helpers.clcikhouse import insert_into_clickhouse, get_clickhouse_to_pandas_type, optimize_table_final
 from jetshift_core.helpers.common import *
 from jetshift_core.helpers.migrations.tables import read_table_schema
 from jetshift_core.helpers.mysql import *
@@ -17,17 +17,22 @@ def clickhouse_table_exists(connection, table_name, database_name):
     return result.scalar() > 0
 
 
-def create_mysql_to_clickhouse_table(task, selected_database, source_database):
+def create_mysql_to_clickhouse_table(sub_task, selected_database, source_database):
     try:
-        columns = fetch_mysql_schema(source_database, task.source_table)
+        columns = fetch_mysql_schema(source_database, sub_task.source_table)
         ch_columns = []
         primary_key_column = None
 
         for col in columns:
-            # Map MySQL data type to ClickHouse data type
-            ch_type = map_mysql_to_clickhouse(col['DATA_TYPE'])
-            nullable = 'NULL' if col['IS_NULLABLE'] == 'YES' else ''
-            ch_columns.append(f"`{col['COLUMN_NAME']}` {ch_type} {nullable}")
+            is_nullable = col['IS_NULLABLE'] == 'YES'
+            data_type = col['DATA_TYPE']
+            # Use custom decimal precision if available
+            precision = int(col.get('NUMERIC_PRECISION') or 18)
+            scale = int(col.get('NUMERIC_SCALE') or 4)
+
+            # Map to ClickHouse type
+            ch_type = map_mysql_to_clickhouse(data_type, is_nullable=is_nullable, precision=precision, scale=scale)
+            ch_columns.append(f"`{col['COLUMN_NAME']}` {ch_type}")
 
             # Detect MySQL primary key
             if col.get('COLUMN_KEY') == 'PRI' and col['COLUMN_NAME'] == 'id':
@@ -39,23 +44,28 @@ def create_mysql_to_clickhouse_table(task, selected_database, source_database):
         # Join column definitions
         columns_str = ",\n    ".join(ch_columns)
 
-        # Dynamic ORDER BY based on primary key detection
+        # ORDER BY clause
         order_by = primary_key_column if primary_key_column else 'tuple()'
 
+        # Use version column for ReplacingMergeTree
+        version_column = sub_task.config.get('version_column')
+
+        if version_column:
+            engine_clause = f"ReplacingMergeTree({version_column})"
+        else:
+            engine_clause = "ReplacingMergeTree()"
+
         clickhouse_ddl = f"""
-        CREATE TABLE {task.target_table} (
+        CREATE TABLE {sub_task.target_table} (
             {columns_str}
-        ) ENGINE = ReplacingMergeTree()
+        ) ENGINE = {engine_clause}
         ORDER BY {order_by};
         """
 
-        # Define the connection URL
+        # Create table in ClickHouse
         target_database_url = get_db_connection_url(selected_database)
-
-        # Create the SQLAlchemy engine
         engine = create_engine(target_database_url, future=True)
 
-        # Execute the DDL statement
         with engine.connect() as connection:
             connection.execute(text(clickhouse_ddl))
 
@@ -137,6 +147,11 @@ def load_data(params):
             time.sleep(params.sleep_interval)
 
         js_logger.info(f"Total inserted: {num_rows} rows into {params.target_table}")
+
+        # Optimize table final (remove version data)
+        if not params.keep_version_rows:
+            optimize_table_final(params.target_engine, params.target_table)
+
     except Exception as e:
         js_logger.error(f"Load failed: {str(e)}")
         raise e

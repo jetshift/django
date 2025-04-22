@@ -1,23 +1,38 @@
-def map_mysql_to_clickhouse(mysql_type):
-    mysql_to_clickhouse = {
+def map_mysql_to_clickhouse(mysql_type: str, is_nullable: bool = False, precision: int = 18, scale: int = 4) -> str:
+    mysql_type = mysql_type.lower()
+
+    base_type = {
         'int': 'Int32',
+        'integer': 'Int32',
         'bigint': 'Int64',
+        'smallint': 'Int16',
+        'mediumint': 'Int32',
+        'tinyint': 'UInt8',
+        'bit': 'UInt8',
+
+        'float': 'Float32',
+        'double': 'Float64',
+        'decimal': f'Decimal({precision}, {scale})',
+
         'varchar': 'String',
         'char': 'String',
         'text': 'String',
         'tinytext': 'String',
         'mediumtext': 'String',
         'longtext': 'String',
+        'enum': 'String',
+        'json': 'String',
+
         'datetime': 'DateTime',
         'timestamp': 'DateTime',
-        'float': 'Float32',
-        'double': 'Float64',
-        'tinyint': 'UInt8',
-        'smallint': 'Int16',
-        'mediumint': 'Int32',
-        'decimal': 'Float64'
-    }
-    return mysql_to_clickhouse.get(mysql_type.lower(), 'String')
+        'date': 'Date',
+        'time': 'String',  # no direct TIME support
+
+        'blob': 'String',
+        'binary': 'String',
+    }.get(mysql_type, 'String')
+
+    return f'Nullable({base_type})' if is_nullable else base_type
 
 
 def mysql_table_exists(connection, table_name, database_name):
@@ -154,6 +169,7 @@ def handle_mysql_error(error):
 
 def fetch_and_extract_limit(params):
     import pandas as pd
+    from datetime import datetime, timedelta
     from jetshift_core.js_logger import get_logger
     from sqlalchemy import MetaData, Table, select
     from jetshift_core.helpers.common import clear_files, create_data_directory
@@ -167,6 +183,7 @@ def fetch_and_extract_limit(params):
     extract_offset = params.extract_offset
     extract_limit = params.extract_limit
     primary_id = params.primary_id
+    detect_changes = params.detect_changes  # minutes or None
 
     if truncate_table:
         truncate_clickhouse_table(params.target_engine, table_name)
@@ -178,11 +195,16 @@ def fetch_and_extract_limit(params):
     # Start building the SQLAlchemy query
     stmt = select(table)
 
-    # If primary_id is defined, apply the last_id filtering
-    if primary_id:
-        last_id = get_last_id_from_clickhouse(params.target_engine, params.target_table, primary_id)
-        js_logger.info(f"Last ClickHouse {params.target_table} {primary_id}: {last_id}")
-        stmt = stmt.where(table.c[primary_id] > last_id)
+    # Filter rows where updated_at is within the last minutes
+    if detect_changes:
+        threshold_time = datetime.now() - timedelta(minutes=int(params.detect_changes))
+        stmt = stmt.where(table.c.updated_at >= threshold_time)
+    else:
+        # If primary_id is defined, apply the last_id filtering
+        if primary_id:
+            last_id = get_last_id_from_clickhouse(params.target_engine, params.target_table, primary_id)
+            js_logger.info(f"Last ClickHouse {params.target_table} {primary_id}: {last_id}")
+            stmt = stmt.where(table.c[primary_id] > last_id)
 
     # Apply limit and offset
     stmt = stmt.limit(extract_limit).offset(extract_offset)

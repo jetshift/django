@@ -109,6 +109,8 @@ def default_sub_task_config():
     return {
         "live_schema": True,
         "primary_id": "id",
+        "version_column": "",
+        "detect_changes": None,
         "extract_offset": 0,
         "extract_limit": 10,
         "extract_chunk_size": 0,

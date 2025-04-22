@@ -24,6 +24,7 @@
       "config": {
         "live_schema": true,
         "primary_id": "id",
+        "version_column": "",
         "extract_offset": 0,
         "extract_limit": 10,
         "extract_chunk_size": 30,
@@ -50,6 +51,7 @@
       "config": {
         "live_schema": true,
         "primary_id": "id",
+        "version_column": "",
         "extract_offset": 0,
         "extract_limit": 10,
         "extract_chunk_size": 30,
@@ -90,11 +92,40 @@
       "config": {
         "live_schema": true,
         "primary_id": "id",
+        "version_column": "",
         "extract_offset": 0,
-        "extract_limit": 10,
+        "extract_limit": 50,
         "extract_chunk_size": 30,
         "truncate_table": false,
-        "load_chunk_size": 10,
+        "load_chunk_size": 50,
+        "sleep_interval": 1
+      },
+      "stats": {
+        "total_source_items": 0,
+        "total_target_items": 0
+      },
+      "cron": "* * * * *",
+      "error": ""
+    }
+  },
+  {
+    "model": "app.jssubtask",
+    "pk": 4,
+    "fields": {
+      "task_id": 2,
+      "source_table": "users",
+      "target_table": "users",
+      "status": "idle",
+      "config": {
+        "live_schema": true,
+        "primary_id": "id",
+        "version_column": "",
+        "detect_changes": 21600,
+        "extract_offset": 0,
+        "extract_limit": 5,
+        "extract_chunk_size": 30,
+        "truncate_table": false,
+        "load_chunk_size": 5,
         "sleep_interval": 1
       },
       "stats": {
