@@ -2,12 +2,14 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
 
+from app.views.user_views import UserViewSet
 from app.views.auth_views import CustomTokenObtainPairView, ProtectedView
 from app.views.task_views import TaskViewSet, SubTaskViewSet
 from app.views.views import DatabaseViewSet, MigrateDatabaseViewSet, MigrationViewSet, test_view
 from app.views.chart_views import ChartsETLTasksView, ChartsDatabasesView
 
 router = DefaultRouter()
+router.register(r'users', UserViewSet, basename='users')
 router.register(r'databases', DatabaseViewSet)
 router.register(r'migrate/databases', MigrateDatabaseViewSet)
 router.register(r'tasks', TaskViewSet, basename='tasks')

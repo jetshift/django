@@ -3,7 +3,9 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from app.serializers import CustomTokenObtainPairSerializer
 from dotenv import load_dotenv
+from rest_framework import status
 from rest_framework.response import Response
+from app.views.user_views import UserSerializer
 
 load_dotenv()
 
@@ -16,4 +18,11 @@ class ProtectedView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        return Response({"message": f"Hello {request.user.first_name}!"})
+        try:
+            user_data = UserSerializer(request.user).data
+            return Response(user_data)
+        except Exception as e:
+            return Response(
+                {"error": "Something went wrong.", "details": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
