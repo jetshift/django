@@ -1,7 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from rest_framework.decorators import api_view
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
@@ -12,8 +12,8 @@ from app.serializers import DatabaseSerializer, JSMigrateDatabaseSerializer, JST
 from jetshift_core.helpers.database import check_database_connection
 from jetshift_core.helpers.migrations.common import migrate_supported_pairs
 
-
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def test_view(request):
     # Send WebSocket notification
     from app.utils.notify import trigger_websocket_notification
@@ -26,6 +26,7 @@ def test_view(request):
     return Response({'message': 'Test route is working!'})
 
 
+@permission_classes([AllowAny])
 class DatabaseViewSet(CustomResponseMixin, viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = JSDatabase.objects.all()
