@@ -74,7 +74,7 @@ ASGI_APPLICATION = 'jetshift.asgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DB_ENGINE = os.getenv('DB_ENGINE', 'sqlite3')  # Options: sqlite3, postgresql, mysql
+DB_ENGINE = os.getenv('DB_ENGINE', 'sqlite3').lower()  # Ensure lowercase: sqlite3, postgresql, mysql
 
 if DB_ENGINE == 'sqlite3':
     DATABASES = {
@@ -87,11 +87,11 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': f'django.db.backends.{DB_ENGINE}',
-            'NAME': os.getenv('DB_NAME', 'postgres'),
-            'USER': os.getenv('DB_USER', 'postgres'),
+            'NAME': os.getenv('DB_NAME', 'jetshift'),
+            'USER': os.getenv('DB_USER', 'root'),
             'PASSWORD': os.getenv('DB_PASSWORD', ''),
             'HOST': os.getenv('DB_HOST', 'localhost'),
-            'PORT': os.getenv('DB_PORT', '5432'),
+            'PORT': os.getenv('DB_PORT', '3306'),
         }
     }
 
