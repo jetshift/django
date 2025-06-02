@@ -8,6 +8,8 @@ urlpatterns = [
     path('api/', include('app.urls')),
 ]
 
-# Serve static files during development
+# Only include the debug toolbar in development
 if settings.DEBUG:
+    from debug_toolbar.toolbar import debug_toolbar_urls
+    urlpatterns += debug_toolbar_urls()
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

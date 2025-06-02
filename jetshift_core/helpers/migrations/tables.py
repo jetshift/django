@@ -34,7 +34,7 @@ def read_table_schema(database, task, table_type='source', create=False, source_
                         if created:
                             message = f"Created '{table_name}' table and schema fetched successfully"
                         else:
-                            return False, message, []
+                            return False, created_message, []
                     else:
                         return False, message, []
 
