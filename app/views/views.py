@@ -12,6 +12,7 @@ from app.serializers import DatabaseSerializer, JSMigrateDatabaseSerializer, JST
 from jetshift_core.helpers.database import check_database_connection
 from jetshift_core.helpers.migrations.common import migrate_supported_pairs
 
+
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def test_view(request):
@@ -23,7 +24,9 @@ def test_view(request):
         "total_target_items": 1
     })
 
-    return Response({'message': 'Test route is working!'})
+    return Response({
+        'message': 'Test route is working!',
+    })
 
 
 @permission_classes([AllowAny])

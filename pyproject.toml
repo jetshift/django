@@ -21,8 +21,11 @@ dependencies = [
     "mysqlclient==2.2.7",
     "psycopg2==2.9.10",
     "channels-redis==4.2.1",
+    "boto3==1.38.28",
+    "django-storages==1.14.6",
     #    "jetshift-core==1.0.0a32",
     "clickhouse-sqlalchemy==0.3.2",
+    "django-debug-toolbar==5.2.0",
     # jetshift-core (previously used via PyPI)
     "prefect==3.2.14",
     "pymysql==1.1.1",
@@ -33,7 +36,6 @@ dependencies = [
     "faker==27.4.0",
     "click==8.1.8",
     "pyyaml==6.0.2",
-    "django-debug-toolbar==5.2.0"
 ]
 
 [tool.setuptools.packages.find]

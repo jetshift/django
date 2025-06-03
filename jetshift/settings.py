@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     # "django.contrib.staticfiles",
     # "debug_toolbar",
     'corsheaders',
+    'storages',
     'rest_framework',
     'channels',
     'app',
@@ -211,3 +212,10 @@ CORS_ALLOW_CREDENTIALS = True
 # Allow JWT Auth to work with cookies
 CSRF_COOKIE_SECURE = True  # only if you're also using CSRF tokens (for security with cookies)
 SESSION_COOKIE_SAMESITE = "Lax"  # or "Strict" depending on your flow
+
+# AWS credentials (can also be managed with IAM roles if on EC2)
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+
+AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME', 'ef-backups')
+AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME', 'us-east-2')

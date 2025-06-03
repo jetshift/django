@@ -75,15 +75,15 @@ class TaskViewSet(CustomResponseMixin, viewsets.ModelViewSet):
             # Task fetching logic
             task_id = request.query_params.get('task_id')
             if task_id:
-                migration_task = JSSubTask.objects.get(id=task_id)
+                subtask = JSSubTask.objects.get(id=task_id)
             else:
-                migration_task = JSSubTask.objects.filter(status="syncing").first() or JSSubTask.objects.filter(status="idle").first()
+                subtask = JSSubTask.objects.filter(status="syncing").first() or JSSubTask.objects.filter(status="idle").first()
 
-            if not migration_task:
+            if not subtask:
                 return Response({'success': False, 'message': 'No idle task found.'}, status=404)
 
             migrate_table = self.get_object()
-            success, message = migrate_data(migrate_table, migration_task)
+            success, message = migrate_data(migrate_table, subtask)
 
             # success, message = True, 'Testing'
 
@@ -153,7 +153,7 @@ class SubTaskViewSet(CustomResponseMixin, viewsets.ModelViewSet):
         )
 
     @action(detail=True, methods=['get'], url_path='change-task-status')
-    def migrate(self, request, pk=None):
+    def change_task_status(self, request, pk=None):
         import asyncio
         from jetshift_core.utils.prefect_api import pause_prefect_deployment
 
@@ -174,6 +174,24 @@ class SubTaskViewSet(CustomResponseMixin, viewsets.ModelViewSet):
             migration_task.save()
 
             success, message = True, f"Successfully updated task #{migration_task.id} status to {task_status}"
+            if success:
+                return Response({"success": success, "message": message}, status=status.HTTP_200_OK)
+            else:
+                return Response({"success": success, "message": message}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            return Response({"status": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=True, methods=['get'], url_path='cdc')
+    def cdc(self, request, pk=None):
+        from jetshift_core.tasks.cdc_from_aws_s3 import cdc_from_s3_csv_flow_deploy
+
+        try:
+            subtask = self.get_object()
+            success, message = cdc_from_s3_csv_flow_deploy(subtask)
+
+            # success, message = True, 'Testing'
+
             if success:
                 return Response({"success": success, "message": message}, status=status.HTTP_200_OK)
             else:
