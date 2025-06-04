@@ -19,7 +19,7 @@ dependencies = [
     "djangorestframework-simplejwt==5.5.0",
     "django-cors-headers==4.6.0",
     "mysqlclient==2.2.7",
-    "psycopg2==2.9.10",
+    "psycopg==3.2.9",
     "channels-redis==4.2.1",
     "boto3==1.38.28",
     "django-storages==1.14.6",
