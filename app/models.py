@@ -87,6 +87,7 @@ class JSTask(models.Model):
     TYPE_CHOICES = [
         ('migration', 'Migration'),
         ('etl', 'ETL'),
+        ('cdc', 'CDC'),
     ]
 
     type = models.CharField(max_length=50, choices=TYPE_CHOICES, default='migration')

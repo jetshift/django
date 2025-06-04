@@ -73,5 +73,6 @@ def cdc_from_s3_csv_flow(subtask_id):
     # Task 2
     extract_cdc_data_from_database(params, output_path)
 
+    # Task 3
     total_updated_items = load_data(params)
     js_logger.info(f"Total updated items this time: {total_updated_items}")

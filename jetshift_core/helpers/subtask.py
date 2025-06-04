@@ -1,7 +1,3 @@
-from jetshift_core.helpers.clcikhouse import prepare_params
-from jetshift_core.helpers.database import create_database_engine
-from jetshift_core.services.clickhouse import load_data
-from prefect import task as prefect_task
 from jetshift_core.js_logger import get_logger
 
 js_logger = get_logger()
