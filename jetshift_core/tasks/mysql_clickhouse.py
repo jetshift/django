@@ -3,7 +3,7 @@ from pathlib import Path
 
 from jetshift_core.utils.init_django import setup_django
 from jetshift_core.utils.prefect_api import pause_prefect_deployment
-from jetshift_core.helpers.clcikhouse import prepare_params
+from jetshift_core.helpers.clickhouse import prepare_params
 from jetshift_core.helpers.database import create_database_engine
 from jetshift_core.services.clickhouse import extract_data, load_data
 from jetshift_core.js_logger import get_logger

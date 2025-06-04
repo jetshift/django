@@ -1,5 +1,5 @@
 from config.luigi import luigi, local_scheduler
-from jetshift_core.helpers.clcikhouse import ping_clickhouse
+from jetshift_core.helpers.clickhouse import ping_clickhouse
 
 
 class Ping(luigi.Task):

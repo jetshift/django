@@ -4,7 +4,7 @@ from prefect import task as prefect_task
 from sqlalchemy import create_engine, text
 
 from jetshift_core.helpers.database import get_db_connection_url
-from jetshift_core.helpers.clcikhouse import insert_into_clickhouse, get_clickhouse_to_pandas_type, optimize_table_final
+from jetshift_core.helpers.clickhouse import insert_into_clickhouse, get_clickhouse_to_pandas_type, optimize_table_final
 from jetshift_core.helpers.common import *
 from jetshift_core.helpers.migrations.tables import read_table_schema
 from jetshift_core.helpers.mysql import *

@@ -61,5 +61,5 @@ def min_max_id(engine, table_name):
         return get_min_max_id(table_name)
 
     elif engine == 'clickhouse':
-        from jetshift_core.helpers.clcikhouse import get_min_max_id
+        from jetshift_core.helpers.clickhouse import get_min_max_id
         return get_min_max_id(table_name)

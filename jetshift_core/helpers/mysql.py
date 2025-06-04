@@ -136,7 +136,7 @@ def fetch_and_extract_limit(params):
     from jetshift_core.js_logger import get_logger
     from sqlalchemy import MetaData, Table, select
     from jetshift_core.helpers.common import clear_files, create_data_directory
-    from jetshift_core.helpers.clcikhouse import get_last_id_from_clickhouse, truncate_table as truncate_clickhouse_table
+    from jetshift_core.helpers.clickhouse import get_last_id_from_clickhouse, truncate_table as truncate_clickhouse_table
 
     js_logger = get_logger()
 
@@ -187,7 +187,7 @@ def fetch_and_extract_chunk(params):
     import time
     from jetshift_core.js_logger import get_logger
     from sqlalchemy import MetaData, Table, select, func
-    from jetshift_core.helpers.clcikhouse import get_last_id_from_clickhouse, truncate_table as truncate_clickhouse_table
+    from jetshift_core.helpers.clickhouse import get_last_id_from_clickhouse, truncate_table as truncate_clickhouse_table
 
     js_logger = get_logger()
 
