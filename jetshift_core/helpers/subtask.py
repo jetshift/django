@@ -1,9 +1,10 @@
+from prefect import task as prefect_task
 from jetshift_core.js_logger import get_logger
 
 js_logger = get_logger()
 
 
-# @prefect_task(cache_key_fn=lambda *args: None)
+@prefect_task(cache_key_fn=lambda *args: None)
 def extract_cdc_data_from_database(params, output_path, chunk_size=100):
     import os
     import pandas as pd
@@ -21,7 +22,7 @@ def extract_cdc_data_from_database(params, output_path, chunk_size=100):
             js_logger.warning("No order_ids found in CSV.")
             return
 
-        # Clear old data
+        # Delete the file if it exists
         if os.path.exists(params.output_path):
             os.remove(params.output_path)
 

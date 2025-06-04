@@ -8,7 +8,7 @@ from jetshift_core.helpers.clcikhouse import prepare_params
 from jetshift_core.helpers.database import create_database_engine
 from jetshift_core.helpers.subtask import extract_cdc_data_from_database
 from jetshift_core.services.clickhouse import load_data
-from jetshift_core.services.storage_s3 import merge_all_cdc_csv_from_s3
+from jetshift_core.services.storage_s3 import merge_all_cdc_csv_from_s3, delete_merged_csvs_from_s3
 from jetshift_core.js_logger import get_logger
 
 js_logger = get_logger()
@@ -56,6 +56,7 @@ def cdc_from_s3_csv_flow(subtask_id):
     now = datetime.now(timezone.utc)
     current_time_prefix = now.strftime("%Y%m%d_%H%M")
 
+    # Setup output dir
     output_filename = f"cdc_{table_name}_{current_time_prefix}.csv"
     output_path = os.path.join('data', output_filename)
     # output_path = "data/cdc_orders_20250603_1917.csv"
@@ -64,10 +65,8 @@ def cdc_from_s3_csv_flow(subtask_id):
     merge_all_cdc_csv_from_s3(subtask.target_table, output_path)
 
     task_obj = JSTask.objects.get(id=subtask.task_id)
-
     source_engine = create_database_engine(task_obj.source_db)
     target_engine = create_database_engine(task_obj.target_db)
-
     params = prepare_params(task_obj, subtask, source_engine, target_engine)
 
     # Task 2
@@ -76,3 +75,11 @@ def cdc_from_s3_csv_flow(subtask_id):
     # Task 3
     total_updated_items = load_data(params)
     js_logger.info(f"Total updated items this time: {total_updated_items}")
+
+    # Task 4
+    if total_updated_items > 0:
+        delete_merged_csvs_from_s3(subtask.target_table)
+
+    # Final: delete the merged scv
+    if os.path.exists(output_path):
+        os.remove(output_path)

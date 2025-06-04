@@ -219,3 +219,4 @@ AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 
 AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME', 'ef-backups')
 AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME', 'us-east-2')
+JS_CDC_AWS_DMS_S3_PATH = os.getenv('JS_CDC_AWS_DMS_S3_PATH', 'aws-dms/electronicfirst')

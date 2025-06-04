@@ -70,8 +70,12 @@ def format_csv_data(df, fields):
     return formatted_data
 
 
-def clear_files(table_name):
+def clear_files(params):
+    subtask_id = params.subtask_id
+    table_name = params.table_name
+
     paths = [
+        f"data/{subtask_id}-{table_name}.csv",
         f"data/{table_name}.csv",
         f"data/transformed_{table_name}.csv"
     ]

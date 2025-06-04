@@ -33,6 +33,8 @@ def prepare_params(migrate_table_obj, migration_task, source_engine, target_engi
         target_db=migrate_table_obj.target_db,
         source_engine=source_engine,
         target_engine=target_engine,
+        # Subtask
+        subtask_id=migration_task.id,
         source_table=migration_task.source_table,
         target_table=migration_task.target_table,
         # Get config

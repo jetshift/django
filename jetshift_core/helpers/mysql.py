@@ -176,7 +176,7 @@ def fetch_and_extract_limit(params):
     df = pd.read_sql(stmt, params.source_engine)
 
     # Clear old files and save new CSV
-    clear_files(table_name)
+    clear_files(params)
     create_data_directory()
     df.to_csv(output_path, index=False)
 
