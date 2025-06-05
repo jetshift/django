@@ -160,6 +160,10 @@ def insert_into_clickhouse(target_engine, table_name, data_chunk):
 
     if not data_chunk.empty:
         try:
+            # Clean datetime columns: NaT → None
+            for col in data_chunk.select_dtypes(include=['datetime64[ns]']).columns:
+                data_chunk[col] = data_chunk[col].apply(lambda x: x if pd.notnull(x) else None)
+
             # Reflect the ClickHouse table
             metadata = MetaData()
             table = Table(table_name, metadata, autoload_with=target_engine)
