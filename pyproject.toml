@@ -11,13 +11,14 @@ readme = "README.md"
 requires-python = ">=3.9"
 
 dependencies = [
-    "django==5.1.7",
+    "django==5.2.4",
     "channels==4.2.0",
     "uvicorn[standard]==0.34.0",
     "daphne==4.1.2",
     "djangorestframework==3.15.2",
     "djangorestframework-simplejwt==5.5.0",
     "django-cors-headers==4.6.0",
+    "requests==2.32.4",
     "mysqlclient==2.2.7",
     "psycopg==3.2.9",
     "channels-redis==4.2.1",
@@ -30,7 +31,6 @@ dependencies = [
     "prefect==3.2.14",
     "pymysql==1.1.1",
     "clickhouse-driver==0.2.9",
-    "requests==2.32.3",
     "pandas==2.2.2",
     "sqlalchemy==2.0.39",
     "faker==27.4.0",
