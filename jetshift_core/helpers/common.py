@@ -26,6 +26,10 @@ def jprint(message, type='info', all=False, key=None):
         click.echo(click.style(label, fg=color) + message + '\n', err=(type == 'error'))
 
 
+def str_to_bool(value: str) -> bool:
+    return str(value).lower() in ["1", "true", "yes", "on"]
+
+
 def create_data_directory(directory='data'):
     os.makedirs(directory, exist_ok=True)
 

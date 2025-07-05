@@ -80,7 +80,7 @@ def read_table_schema(database, task, table_type='source', create=False, source_
         return False, f"Unexpected error: {str(e)}", []
 
 
-def migrate_data(migrate_table_obj, migration_task):
+def migrate_data(migrate_table_obj, migration_task, debug_mode):
     # Check migration pair support
     is_supported, supported_message, task_path = migrate_supported_pairs(
         migrate_table_obj.source_db.dialect,
@@ -97,7 +97,7 @@ def migrate_data(migrate_table_obj, migration_task):
         flow_func = getattr(flow_module, flow_name)
 
         # Run without threading
-        flow_func(migrate_table_obj, migration_task)
+        flow_func(migrate_table_obj, migration_task, debug_mode)
 
         # Return immediately after starting the thread
         return True, "Data migration flow run successfully"

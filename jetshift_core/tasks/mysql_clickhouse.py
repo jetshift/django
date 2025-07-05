@@ -9,12 +9,13 @@ from jetshift_core.services.clickhouse import extract_data, load_data
 from jetshift_core.js_logger import get_logger
 
 
-def mysql_to_clickhouse_flow_deploy(migrate_table_obj, migration_task):
+def mysql_to_clickhouse_flow_deploy(migrate_table_obj, migration_task, debug_mode=False):
     js_logger = get_logger()
 
-    # # Debug
-    # mysql_to_clickhouse_flow(migrate_table_obj.id, migration_task.id, 'etl')
-    # return None
+    # Debug: Direct run
+    if debug_mode:
+        mysql_to_clickhouse_flow(migrate_table_obj.id, migration_task.id, 'etl')
+        return None
 
     # Step 1: Determine the flow function name
     flow_function_name = "mysql_to_clickhouse_migration_flow"

@@ -7,6 +7,7 @@ from app.custom_responses import CustomResponseMixin
 from app.models import JSTask, JSSubTask, default_sub_task_config
 from app.serializers import JSTaskSerializer, JSSubTaskSerializer
 from app.utils.model import normalize_config_types
+from jetshift_core.helpers.common import str_to_bool
 from jetshift_core.helpers.migrations.tables import read_table_schema, migrate_data
 
 
@@ -72,6 +73,9 @@ class TaskViewSet(CustomResponseMixin, viewsets.ModelViewSet):
     @action(detail=True, methods=['get'], url_path='sync')
     def migrate(self, request, pk=None):
         try:
+            debug_input = request.query_params.get("debug", False)
+            debug_mode = str_to_bool(debug_input)
+
             # Task fetching logic
             task_id = request.query_params.get('task_id')
             if task_id:
@@ -83,7 +87,7 @@ class TaskViewSet(CustomResponseMixin, viewsets.ModelViewSet):
                 return Response({'success': False, 'message': 'No idle task found.'}, status=404)
 
             migrate_table = self.get_object()
-            success, message = migrate_data(migrate_table, subtask)
+            success, message = migrate_data(migrate_table, subtask, debug_mode)
 
             # success, message = True, 'Testing'
 
